@@ -1,6 +1,6 @@
 module github.com/Bookie-Breaker/bookie-breaker-cli
 
-go 1.24.0
+go 1.25.11
 
 require github.com/oapi-codegen/runtime v1.4.2
 
