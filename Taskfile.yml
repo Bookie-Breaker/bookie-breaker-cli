@@ -30,3 +30,18 @@ tasks:
     desc: Build binary
     cmds:
       - go build -o bin/bb ./cmd/cli
+
+  generate:clients:
+    desc: Regenerate Go clients from the committed OpenAPI specs (ADR-009)
+    preconditions:
+      - sh: test -d ../bookie-breaker-docs
+        msg: bookie-breaker-docs must be cloned alongside this repo
+    cmds:
+      - go run github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@v2.4.1
+        --config .config/oapi-codegen-simulation.yml
+        ../bookie-breaker-docs/api-contracts/openapi/simulation-engine.yaml
+      - go run github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@v2.4.1
+        --config .config/oapi-codegen-prediction.yml
+        ../bookie-breaker-docs/api-contracts/openapi/prediction-engine.yaml
+      - go mod tidy
+      - go build ./...
