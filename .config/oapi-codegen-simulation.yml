@@ -1,0 +1,5 @@
+package: simulationengine
+output: internal/client/simulationengine/client.gen.go
+generate:
+  models: true
+  client: true
