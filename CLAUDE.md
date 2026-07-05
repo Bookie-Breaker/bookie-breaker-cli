@@ -35,7 +35,12 @@ task build        # Build to bin/bb
 - **lines-service** (port 8001) — Direct line lookups
 - **statistics-service** (port 8002) — Direct stat lookups
 - **bookie-emulator** (port 8005) — Bet placement and performance
+- **prediction-engine** (port 8004) — Latest predictions per game
 
 ## Environment Variables
 
-See `.env.example`. Key: `AGENT_URL`, `LINES_SERVICE_URL`, `STATISTICS_SERVICE_URL`, `BOOKIE_EMULATOR_URL`.
+See `.env.example`. Key: `AGENT_URL`, `LINES_SERVICE_URL`, `STATISTICS_SERVICE_URL`, `BOOKIE_EMULATOR_URL`, `PREDICTION_ENGINE_URL`.
+
+## Configuration
+
+User config file: `~/.config/bookiebreaker/config.yaml` (`os.UserConfigDir()/bookiebreaker/config.yaml`), overridable with `--config`. Precedence: defaults < config file < environment variables < flags.

@@ -43,5 +43,14 @@ tasks:
       - go run github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@v2.4.1
         --config .config/oapi-codegen-prediction.yml
         ../bookie-breaker-docs/api-contracts/openapi/prediction-engine.yaml
+      - go run github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@v2.4.1
+        --config .config/oapi-codegen-lines.yml
+        ../bookie-breaker-docs/api-contracts/openapi/lines-service.yaml
+      - go run github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@v2.4.1
+        --config .config/oapi-codegen-agent.yml
+        ../bookie-breaker-docs/api-contracts/openapi/agent.yaml
+      - go run github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@v2.4.1
+        --config .config/oapi-codegen-emulator.yml
+        ../bookie-breaker-docs/api-contracts/openapi/bookie-emulator.yaml
       - go mod tidy
       - go build ./...

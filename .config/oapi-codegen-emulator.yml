@@ -1,0 +1,5 @@
+package: bookieemulator
+output: internal/client/bookieemulator/client.gen.go
+generate:
+  models: true
+  client: true
