@@ -81,6 +81,7 @@ func NewRootCmd() *cobra.Command {
 		NewBetCmd(a),
 		NewPerformanceCmd(a),
 		NewPipelineCmd(a),
+		NewAskCmd(a),
 		NewHealthCmd(a),
 	)
 	return root

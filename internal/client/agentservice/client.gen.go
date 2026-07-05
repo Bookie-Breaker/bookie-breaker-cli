@@ -18,12 +18,31 @@ import (
 	openapi_types "github.com/oapi-codegen/runtime/types"
 )
 
+// Defines values for AnalysisRequestAnalysisType.
+const (
+	EDGEBREAKDOWN     AnalysisRequestAnalysisType = "EDGE_BREAKDOWN"
+	GAMEPREVIEW       AnalysisRequestAnalysisType = "GAME_PREVIEW"
+	PERFORMANCEREVIEW AnalysisRequestAnalysisType = "PERFORMANCE_REVIEW"
+)
+
 // ActiveEdges defines model for ActiveEdges.
 type ActiveEdges struct {
 	AvgEdgePct float32        `json:"avg_edge_pct"`
 	ByLeague   map[string]int `json:"by_league"`
 	Count      int            `json:"count"`
 	TopEdge    *TopEdge       `json:"top_edge"`
+}
+
+// AlertData defines model for AlertData.
+type AlertData struct {
+	AcknowledgedAt *string                `json:"acknowledged_at"`
+	Channel        string                 `json:"channel"`
+	DeliveredAt    string                 `json:"delivered_at"`
+	EdgeId         string                 `json:"edge_id"`
+	Id             string                 `json:"id"`
+	Message        string                 `json:"message"`
+	Payload        map[string]interface{} `json:"payload"`
+	Priority       string                 `json:"priority"`
 }
 
 // AllTimePerformance defines model for AllTimePerformance.
@@ -34,12 +53,43 @@ type AllTimePerformance struct {
 	WinRate     float32 `json:"win_rate"`
 }
 
+// AnalysisData defines model for AnalysisData.
+type AnalysisData struct {
+	AnalysisType string  `json:"analysis_type"`
+	Content      string  `json:"content"`
+	CreatedAt    string  `json:"created_at"`
+	EdgeId       *string `json:"edge_id"`
+	GameId       *string `json:"game_id"`
+	Id           string  `json:"id"`
+	InputSummary *string `json:"input_summary"`
+	ModelUsed    string  `json:"model_used"`
+	Title        string  `json:"title"`
+}
+
+// AnalysisRequest defines model for AnalysisRequest.
+type AnalysisRequest struct {
+	AnalysisType AnalysisRequestAnalysisType `json:"analysis_type"`
+	EdgeId       *string                     `json:"edge_id"`
+	GameId       *string                     `json:"game_id"`
+	Question     *string                     `json:"question"`
+}
+
+// AnalysisRequestAnalysisType defines model for AnalysisRequest.AnalysisType.
+type AnalysisRequestAnalysisType string
+
 // DashboardData defines model for DashboardData.
 type DashboardData struct {
 	ActiveEdges        ActiveEdges         `json:"active_edges"`
 	OpenBets           *OpenBets           `json:"open_bets"`
 	PerformanceSummary *PerformanceSummary `json:"performance_summary"`
 	PipelineStatus     PipelineStatus      `json:"pipeline_status"`
+}
+
+// EdgeAnalysisSummary defines model for EdgeAnalysisSummary.
+type EdgeAnalysisSummary struct {
+	CreatedAt string `json:"created_at"`
+	Id        string `json:"id"`
+	Title     string `json:"title"`
 }
 
 // EdgeBettingLine defines model for EdgeBettingLine.
@@ -53,31 +103,31 @@ type EdgeBettingLine struct {
 
 // EdgeDetailData defines model for EdgeDetailData.
 type EdgeDetailData struct {
-	Analysis              *interface{}     `json:"analysis"`
-	BettingLine           *EdgeBettingLine `json:"betting_line"`
-	Confidence            *float32         `json:"confidence"`
-	DetectedAt            string           `json:"detected_at"`
-	EdgePercentage        float32          `json:"edge_percentage"`
-	ExpectedValue         float32          `json:"expected_value"`
-	ExpiresAt             string           `json:"expires_at"`
-	Game                  *EdgeGame        `json:"game"`
-	GameId                string           `json:"game_id"`
-	Id                    string           `json:"id"`
-	ImpliedProbability    float32          `json:"implied_probability"`
-	IsStale               bool             `json:"is_stale"`
-	KellyFraction         float32          `json:"kelly_fraction"`
-	League                string           `json:"league"`
-	MarketType            string           `json:"market_type"`
-	OddsAmerican          int              `json:"odds_american"`
-	OddsDecimal           float32          `json:"odds_decimal"`
-	PaperBet              *EdgePaperBet    `json:"paper_bet"`
-	PredictedProbability  float32          `json:"predicted_probability"`
-	Prediction            *EdgePrediction  `json:"prediction"`
-	RecommendedStake      float32          `json:"recommended_stake"`
-	Selection             string           `json:"selection"`
-	SimulationProbability *float32         `json:"simulation_probability"`
-	SportsbookId          *string          `json:"sportsbook_id"`
-	SportsbookKey         string           `json:"sportsbook_key"`
+	Analysis              *EdgeAnalysisSummary `json:"analysis"`
+	BettingLine           *EdgeBettingLine     `json:"betting_line"`
+	Confidence            *float32             `json:"confidence"`
+	DetectedAt            string               `json:"detected_at"`
+	EdgePercentage        float32              `json:"edge_percentage"`
+	ExpectedValue         float32              `json:"expected_value"`
+	ExpiresAt             string               `json:"expires_at"`
+	Game                  *EdgeGame            `json:"game"`
+	GameId                string               `json:"game_id"`
+	Id                    string               `json:"id"`
+	ImpliedProbability    float32              `json:"implied_probability"`
+	IsStale               bool                 `json:"is_stale"`
+	KellyFraction         float32              `json:"kelly_fraction"`
+	League                string               `json:"league"`
+	MarketType            string               `json:"market_type"`
+	OddsAmerican          int                  `json:"odds_american"`
+	OddsDecimal           float32              `json:"odds_decimal"`
+	PaperBet              *EdgePaperBet        `json:"paper_bet"`
+	PredictedProbability  float32              `json:"predicted_probability"`
+	Prediction            *EdgePrediction      `json:"prediction"`
+	RecommendedStake      float32              `json:"recommended_stake"`
+	Selection             string               `json:"selection"`
+	SimulationProbability *float32             `json:"simulation_probability"`
+	SportsbookId          *string              `json:"sportsbook_id"`
+	SportsbookKey         string               `json:"sportsbook_key"`
 }
 
 // EdgeGame defines model for EdgeGame.
@@ -137,6 +187,18 @@ type EdgePrediction struct {
 	ModelVersionId      string             `json:"model_version_id"`
 }
 
+// EnvelopeAlertData defines model for Envelope_AlertData_.
+type EnvelopeAlertData struct {
+	Data AlertData `json:"data"`
+	Meta Meta      `json:"meta"`
+}
+
+// EnvelopeAnalysisData defines model for Envelope_AnalysisData_.
+type EnvelopeAnalysisData struct {
+	Data AnalysisData `json:"data"`
+	Meta Meta         `json:"meta"`
+}
+
 // EnvelopeDashboardData defines model for Envelope_DashboardData_.
 type EnvelopeDashboardData struct {
 	Data DashboardData `json:"data"`
@@ -167,6 +229,18 @@ type EnvelopePipelineRunData struct {
 	Meta Meta            `json:"meta"`
 }
 
+// EnvelopeScheduleData defines model for Envelope_ScheduleData_.
+type EnvelopeScheduleData struct {
+	Data ScheduleData `json:"data"`
+	Meta Meta         `json:"meta"`
+}
+
+// EnvelopeScheduleListData defines model for Envelope_ScheduleListData_.
+type EnvelopeScheduleListData struct {
+	Data ScheduleListData `json:"data"`
+	Meta Meta             `json:"meta"`
+}
+
 // EnvelopeSlateData defines model for Envelope_SlateData_.
 type EnvelopeSlateData struct {
 	Data SlateData `json:"data"`
@@ -190,9 +264,9 @@ type HealthData struct {
 
 // HealthPipeline defines model for HealthPipeline.
 type HealthPipeline struct {
-	LastRunAt        *string      `json:"last_run_at"`
-	LastRunStatus    *string      `json:"last_run_status"`
-	NextScheduledRun *interface{} `json:"next_scheduled_run"`
+	LastRunAt        *string `json:"last_run_at"`
+	LastRunStatus    *string `json:"last_run_status"`
+	NextScheduledRun *string `json:"next_scheduled_run"`
 }
 
 // LastRun defines model for LastRun.
@@ -216,6 +290,12 @@ type OpenBets struct {
 	Count              int     `json:"count"`
 	GamesPending       int     `json:"games_pending"`
 	TotalExposureUnits float32 `json:"total_exposure_units"`
+}
+
+// PageEnvelopeAlertData defines model for PageEnvelope_AlertData_.
+type PageEnvelopeAlertData struct {
+	Data []AlertData `json:"data"`
+	Meta PageMeta    `json:"meta"`
 }
 
 // PageEnvelopeEdgeListItem defines model for PageEnvelope_EdgeListItem_.
@@ -290,8 +370,40 @@ type PipelineRunRequest struct {
 
 // PipelineStatus defines model for PipelineStatus.
 type PipelineStatus struct {
-	LastRun          *LastRun     `json:"last_run"`
-	NextScheduledRun *interface{} `json:"next_scheduled_run"`
+	LastRun          *LastRun `json:"last_run"`
+	NextScheduledRun *string  `json:"next_scheduled_run"`
+}
+
+// ScheduleData defines model for ScheduleData.
+type ScheduleData struct {
+	AutoBet          bool                    `json:"auto_bet"`
+	CronExpression   string                  `json:"cron_expression"`
+	Description      *string                 `json:"description"`
+	Enabled          bool                    `json:"enabled"`
+	Id               string                  `json:"id"`
+	LastRunAt        *string                 `json:"last_run_at"`
+	League           string                  `json:"league"`
+	MinEdgeThreshold float32                 `json:"min_edge_threshold"`
+	NextRunAt        *string                 `json:"next_run_at"`
+	SimulationConfig *map[string]interface{} `json:"simulation_config"`
+	Timezone         string                  `json:"timezone"`
+}
+
+// ScheduleListData defines model for ScheduleListData.
+type ScheduleListData struct {
+	Schedules []ScheduleData `json:"schedules"`
+}
+
+// ScheduleRequest defines model for ScheduleRequest.
+type ScheduleRequest struct {
+	AutoBet          *bool                   `json:"auto_bet,omitempty"`
+	CronExpression   string                  `json:"cron_expression"`
+	Description      *string                 `json:"description"`
+	Enabled          *bool                   `json:"enabled,omitempty"`
+	League           string                  `json:"league"`
+	MinEdgeThreshold *float32                `json:"min_edge_threshold,omitempty"`
+	SimulationConfig *map[string]interface{} `json:"simulation_config"`
+	Timezone         *string                 `json:"timezone,omitempty"`
 }
 
 // SlateData defines model for SlateData.
@@ -366,6 +478,21 @@ type ValidationError_Loc_Item struct {
 	union json.RawMessage
 }
 
+// ListAlertsApiV1AgentAlertsGetParams defines parameters for ListAlertsApiV1AgentAlertsGet.
+type ListAlertsApiV1AgentAlertsGetParams struct {
+	// Priority Filter by priority: LOW, MEDIUM, HIGH.
+	Priority *string `form:"priority,omitempty" json:"priority,omitempty"`
+
+	// Acknowledged Filter by acknowledgement state.
+	Acknowledged *bool `form:"acknowledged,omitempty" json:"acknowledged,omitempty"`
+
+	// Limit Max results per page.
+	Limit *int `form:"limit,omitempty" json:"limit,omitempty"`
+
+	// Cursor Opaque pagination cursor.
+	Cursor *string `form:"cursor,omitempty" json:"cursor,omitempty"`
+}
+
 // GetDashboardApiV1AgentDashboardGetParams defines parameters for GetDashboardApiV1AgentDashboardGet.
 type GetDashboardApiV1AgentDashboardGetParams struct {
 	// League Filter by league; comma-separated for multiple.
@@ -405,8 +532,14 @@ type GetSlateApiV1AgentSlateGetParams struct {
 	Date *openapi_types.Date `form:"date,omitempty" json:"date,omitempty"`
 }
 
+// CreateAnalysisApiV1AgentAnalysisPostJSONRequestBody defines body for CreateAnalysisApiV1AgentAnalysisPost for application/json ContentType.
+type CreateAnalysisApiV1AgentAnalysisPostJSONRequestBody = AnalysisRequest
+
 // RunPipelineApiV1AgentPipelineRunPostJSONRequestBody defines body for RunPipelineApiV1AgentPipelineRunPost for application/json ContentType.
 type RunPipelineApiV1AgentPipelineRunPostJSONRequestBody = PipelineRunRequest
+
+// UpsertScheduleApiV1AgentSchedulePostJSONRequestBody defines body for UpsertScheduleApiV1AgentSchedulePost for application/json ContentType.
+type UpsertScheduleApiV1AgentSchedulePostJSONRequestBody = ScheduleRequest
 
 // AsValidationErrorLoc0 returns the union data inside the ValidationError_Loc_Item as a ValidationErrorLoc0
 func (t ValidationError_Loc_Item) AsValidationErrorLoc0() (ValidationErrorLoc0, error) {
@@ -543,6 +676,20 @@ func WithRequestEditorFn(fn RequestEditorFn) ClientOption {
 
 // The interface specification for the client above.
 type ClientInterface interface {
+	// ListAlertsApiV1AgentAlertsGet request
+	ListAlertsApiV1AgentAlertsGet(ctx context.Context, params *ListAlertsApiV1AgentAlertsGetParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// AcknowledgeAlertApiV1AgentAlertsAlertIdAcknowledgePut request
+	AcknowledgeAlertApiV1AgentAlertsAlertIdAcknowledgePut(ctx context.Context, alertId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateAnalysisApiV1AgentAnalysisPostWithBody request with any body
+	CreateAnalysisApiV1AgentAnalysisPostWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateAnalysisApiV1AgentAnalysisPost(ctx context.Context, body CreateAnalysisApiV1AgentAnalysisPostJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetAnalysisApiV1AgentAnalysisAnalysisIdGet request
+	GetAnalysisApiV1AgentAnalysisAnalysisIdGet(ctx context.Context, analysisId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetDashboardApiV1AgentDashboardGet request
 	GetDashboardApiV1AgentDashboardGet(ctx context.Context, params *GetDashboardApiV1AgentDashboardGetParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -563,8 +710,76 @@ type ClientInterface interface {
 	// GetPipelineRunApiV1AgentPipelineRunsPipelineRunIdGet request
 	GetPipelineRunApiV1AgentPipelineRunsPipelineRunIdGet(ctx context.Context, pipelineRunId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// ListSchedulesApiV1AgentScheduleGet request
+	ListSchedulesApiV1AgentScheduleGet(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpsertScheduleApiV1AgentSchedulePostWithBody request with any body
+	UpsertScheduleApiV1AgentSchedulePostWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	UpsertScheduleApiV1AgentSchedulePost(ctx context.Context, body UpsertScheduleApiV1AgentSchedulePostJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetSlateApiV1AgentSlateGet request
 	GetSlateApiV1AgentSlateGet(ctx context.Context, params *GetSlateApiV1AgentSlateGetParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+}
+
+func (c *Client) ListAlertsApiV1AgentAlertsGet(ctx context.Context, params *ListAlertsApiV1AgentAlertsGetParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListAlertsApiV1AgentAlertsGetRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) AcknowledgeAlertApiV1AgentAlertsAlertIdAcknowledgePut(ctx context.Context, alertId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewAcknowledgeAlertApiV1AgentAlertsAlertIdAcknowledgePutRequest(c.Server, alertId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateAnalysisApiV1AgentAnalysisPostWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateAnalysisApiV1AgentAnalysisPostRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateAnalysisApiV1AgentAnalysisPost(ctx context.Context, body CreateAnalysisApiV1AgentAnalysisPostJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateAnalysisApiV1AgentAnalysisPostRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetAnalysisApiV1AgentAnalysisAnalysisIdGet(ctx context.Context, analysisId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetAnalysisApiV1AgentAnalysisAnalysisIdGetRequest(c.Server, analysisId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
 }
 
 func (c *Client) GetDashboardApiV1AgentDashboardGet(ctx context.Context, params *GetDashboardApiV1AgentDashboardGetParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -651,6 +866,42 @@ func (c *Client) GetPipelineRunApiV1AgentPipelineRunsPipelineRunIdGet(ctx contex
 	return c.Client.Do(req)
 }
 
+func (c *Client) ListSchedulesApiV1AgentScheduleGet(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListSchedulesApiV1AgentScheduleGetRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpsertScheduleApiV1AgentSchedulePostWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpsertScheduleApiV1AgentSchedulePostRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpsertScheduleApiV1AgentSchedulePost(ctx context.Context, body UpsertScheduleApiV1AgentSchedulePostJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpsertScheduleApiV1AgentSchedulePostRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) GetSlateApiV1AgentSlateGet(ctx context.Context, params *GetSlateApiV1AgentSlateGetParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetSlateApiV1AgentSlateGetRequest(c.Server, params)
 	if err != nil {
@@ -661,6 +912,211 @@ func (c *Client) GetSlateApiV1AgentSlateGet(ctx context.Context, params *GetSlat
 		return nil, err
 	}
 	return c.Client.Do(req)
+}
+
+// NewListAlertsApiV1AgentAlertsGetRequest generates requests for ListAlertsApiV1AgentAlertsGet
+func NewListAlertsApiV1AgentAlertsGetRequest(server string, params *ListAlertsApiV1AgentAlertsGetParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/agent/alerts")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.Priority != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "priority", runtime.ParamLocationQuery, *params.Priority); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Acknowledged != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "acknowledged", runtime.ParamLocationQuery, *params.Acknowledged); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Limit != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "limit", runtime.ParamLocationQuery, *params.Limit); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Cursor != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "cursor", runtime.ParamLocationQuery, *params.Cursor); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewAcknowledgeAlertApiV1AgentAlertsAlertIdAcknowledgePutRequest generates requests for AcknowledgeAlertApiV1AgentAlertsAlertIdAcknowledgePut
+func NewAcknowledgeAlertApiV1AgentAlertsAlertIdAcknowledgePutRequest(server string, alertId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "alert_id", runtime.ParamLocationPath, alertId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/agent/alerts/%s/acknowledge", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCreateAnalysisApiV1AgentAnalysisPostRequest calls the generic CreateAnalysisApiV1AgentAnalysisPost builder with application/json body
+func NewCreateAnalysisApiV1AgentAnalysisPostRequest(server string, body CreateAnalysisApiV1AgentAnalysisPostJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateAnalysisApiV1AgentAnalysisPostRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewCreateAnalysisApiV1AgentAnalysisPostRequestWithBody generates requests for CreateAnalysisApiV1AgentAnalysisPost with any type of body
+func NewCreateAnalysisApiV1AgentAnalysisPostRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/agent/analysis")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetAnalysisApiV1AgentAnalysisAnalysisIdGetRequest generates requests for GetAnalysisApiV1AgentAnalysisAnalysisIdGet
+func NewGetAnalysisApiV1AgentAnalysisAnalysisIdGetRequest(server string, analysisId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "analysis_id", runtime.ParamLocationPath, analysisId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/agent/analysis/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
 }
 
 // NewGetDashboardApiV1AgentDashboardGetRequest generates requests for GetDashboardApiV1AgentDashboardGet
@@ -992,6 +1448,73 @@ func NewGetPipelineRunApiV1AgentPipelineRunsPipelineRunIdGetRequest(server strin
 	return req, nil
 }
 
+// NewListSchedulesApiV1AgentScheduleGetRequest generates requests for ListSchedulesApiV1AgentScheduleGet
+func NewListSchedulesApiV1AgentScheduleGetRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/agent/schedule")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewUpsertScheduleApiV1AgentSchedulePostRequest calls the generic UpsertScheduleApiV1AgentSchedulePost builder with application/json body
+func NewUpsertScheduleApiV1AgentSchedulePostRequest(server string, body UpsertScheduleApiV1AgentSchedulePostJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpsertScheduleApiV1AgentSchedulePostRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewUpsertScheduleApiV1AgentSchedulePostRequestWithBody generates requests for UpsertScheduleApiV1AgentSchedulePost with any type of body
+func NewUpsertScheduleApiV1AgentSchedulePostRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/agent/schedule")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewGetSlateApiV1AgentSlateGetRequest generates requests for GetSlateApiV1AgentSlateGet
 func NewGetSlateApiV1AgentSlateGetRequest(server string, params *GetSlateApiV1AgentSlateGetParams) (*http.Request, error) {
 	var err error
@@ -1100,6 +1623,20 @@ func WithBaseURL(baseURL string) ClientOption {
 
 // ClientWithResponsesInterface is the interface specification for the client with responses above.
 type ClientWithResponsesInterface interface {
+	// ListAlertsApiV1AgentAlertsGetWithResponse request
+	ListAlertsApiV1AgentAlertsGetWithResponse(ctx context.Context, params *ListAlertsApiV1AgentAlertsGetParams, reqEditors ...RequestEditorFn) (*ListAlertsApiV1AgentAlertsGetResponse, error)
+
+	// AcknowledgeAlertApiV1AgentAlertsAlertIdAcknowledgePutWithResponse request
+	AcknowledgeAlertApiV1AgentAlertsAlertIdAcknowledgePutWithResponse(ctx context.Context, alertId openapi_types.UUID, reqEditors ...RequestEditorFn) (*AcknowledgeAlertApiV1AgentAlertsAlertIdAcknowledgePutResponse, error)
+
+	// CreateAnalysisApiV1AgentAnalysisPostWithBodyWithResponse request with any body
+	CreateAnalysisApiV1AgentAnalysisPostWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateAnalysisApiV1AgentAnalysisPostResponse, error)
+
+	CreateAnalysisApiV1AgentAnalysisPostWithResponse(ctx context.Context, body CreateAnalysisApiV1AgentAnalysisPostJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateAnalysisApiV1AgentAnalysisPostResponse, error)
+
+	// GetAnalysisApiV1AgentAnalysisAnalysisIdGetWithResponse request
+	GetAnalysisApiV1AgentAnalysisAnalysisIdGetWithResponse(ctx context.Context, analysisId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetAnalysisApiV1AgentAnalysisAnalysisIdGetResponse, error)
+
 	// GetDashboardApiV1AgentDashboardGetWithResponse request
 	GetDashboardApiV1AgentDashboardGetWithResponse(ctx context.Context, params *GetDashboardApiV1AgentDashboardGetParams, reqEditors ...RequestEditorFn) (*GetDashboardApiV1AgentDashboardGetResponse, error)
 
@@ -1120,8 +1657,109 @@ type ClientWithResponsesInterface interface {
 	// GetPipelineRunApiV1AgentPipelineRunsPipelineRunIdGetWithResponse request
 	GetPipelineRunApiV1AgentPipelineRunsPipelineRunIdGetWithResponse(ctx context.Context, pipelineRunId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetPipelineRunApiV1AgentPipelineRunsPipelineRunIdGetResponse, error)
 
+	// ListSchedulesApiV1AgentScheduleGetWithResponse request
+	ListSchedulesApiV1AgentScheduleGetWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListSchedulesApiV1AgentScheduleGetResponse, error)
+
+	// UpsertScheduleApiV1AgentSchedulePostWithBodyWithResponse request with any body
+	UpsertScheduleApiV1AgentSchedulePostWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpsertScheduleApiV1AgentSchedulePostResponse, error)
+
+	UpsertScheduleApiV1AgentSchedulePostWithResponse(ctx context.Context, body UpsertScheduleApiV1AgentSchedulePostJSONRequestBody, reqEditors ...RequestEditorFn) (*UpsertScheduleApiV1AgentSchedulePostResponse, error)
+
 	// GetSlateApiV1AgentSlateGetWithResponse request
 	GetSlateApiV1AgentSlateGetWithResponse(ctx context.Context, params *GetSlateApiV1AgentSlateGetParams, reqEditors ...RequestEditorFn) (*GetSlateApiV1AgentSlateGetResponse, error)
+}
+
+type ListAlertsApiV1AgentAlertsGetResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *PageEnvelopeAlertData
+	JSON422      *HTTPValidationError
+}
+
+// Status returns HTTPResponse.Status
+func (r ListAlertsApiV1AgentAlertsGetResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListAlertsApiV1AgentAlertsGetResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type AcknowledgeAlertApiV1AgentAlertsAlertIdAcknowledgePutResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *EnvelopeAlertData
+	JSON422      *HTTPValidationError
+}
+
+// Status returns HTTPResponse.Status
+func (r AcknowledgeAlertApiV1AgentAlertsAlertIdAcknowledgePutResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r AcknowledgeAlertApiV1AgentAlertsAlertIdAcknowledgePutResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type CreateAnalysisApiV1AgentAnalysisPostResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *EnvelopeAnalysisData
+	JSON201      *EnvelopeAnalysisData
+	JSON422      *HTTPValidationError
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateAnalysisApiV1AgentAnalysisPostResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateAnalysisApiV1AgentAnalysisPostResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetAnalysisApiV1AgentAnalysisAnalysisIdGetResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *EnvelopeAnalysisData
+	JSON422      *HTTPValidationError
+}
+
+// Status returns HTTPResponse.Status
+func (r GetAnalysisApiV1AgentAnalysisAnalysisIdGetResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetAnalysisApiV1AgentAnalysisAnalysisIdGetResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
 }
 
 type GetDashboardApiV1AgentDashboardGetResponse struct {
@@ -1261,6 +1899,52 @@ func (r GetPipelineRunApiV1AgentPipelineRunsPipelineRunIdGetResponse) StatusCode
 	return 0
 }
 
+type ListSchedulesApiV1AgentScheduleGetResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *EnvelopeScheduleListData
+}
+
+// Status returns HTTPResponse.Status
+func (r ListSchedulesApiV1AgentScheduleGetResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListSchedulesApiV1AgentScheduleGetResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type UpsertScheduleApiV1AgentSchedulePostResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *EnvelopeScheduleData
+	JSON201      *EnvelopeScheduleData
+	JSON422      *HTTPValidationError
+}
+
+// Status returns HTTPResponse.Status
+func (r UpsertScheduleApiV1AgentSchedulePostResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpsertScheduleApiV1AgentSchedulePostResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type GetSlateApiV1AgentSlateGetResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -1282,6 +1966,50 @@ func (r GetSlateApiV1AgentSlateGetResponse) StatusCode() int {
 		return r.HTTPResponse.StatusCode
 	}
 	return 0
+}
+
+// ListAlertsApiV1AgentAlertsGetWithResponse request returning *ListAlertsApiV1AgentAlertsGetResponse
+func (c *ClientWithResponses) ListAlertsApiV1AgentAlertsGetWithResponse(ctx context.Context, params *ListAlertsApiV1AgentAlertsGetParams, reqEditors ...RequestEditorFn) (*ListAlertsApiV1AgentAlertsGetResponse, error) {
+	rsp, err := c.ListAlertsApiV1AgentAlertsGet(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListAlertsApiV1AgentAlertsGetResponse(rsp)
+}
+
+// AcknowledgeAlertApiV1AgentAlertsAlertIdAcknowledgePutWithResponse request returning *AcknowledgeAlertApiV1AgentAlertsAlertIdAcknowledgePutResponse
+func (c *ClientWithResponses) AcknowledgeAlertApiV1AgentAlertsAlertIdAcknowledgePutWithResponse(ctx context.Context, alertId openapi_types.UUID, reqEditors ...RequestEditorFn) (*AcknowledgeAlertApiV1AgentAlertsAlertIdAcknowledgePutResponse, error) {
+	rsp, err := c.AcknowledgeAlertApiV1AgentAlertsAlertIdAcknowledgePut(ctx, alertId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseAcknowledgeAlertApiV1AgentAlertsAlertIdAcknowledgePutResponse(rsp)
+}
+
+// CreateAnalysisApiV1AgentAnalysisPostWithBodyWithResponse request with arbitrary body returning *CreateAnalysisApiV1AgentAnalysisPostResponse
+func (c *ClientWithResponses) CreateAnalysisApiV1AgentAnalysisPostWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateAnalysisApiV1AgentAnalysisPostResponse, error) {
+	rsp, err := c.CreateAnalysisApiV1AgentAnalysisPostWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateAnalysisApiV1AgentAnalysisPostResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateAnalysisApiV1AgentAnalysisPostWithResponse(ctx context.Context, body CreateAnalysisApiV1AgentAnalysisPostJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateAnalysisApiV1AgentAnalysisPostResponse, error) {
+	rsp, err := c.CreateAnalysisApiV1AgentAnalysisPost(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateAnalysisApiV1AgentAnalysisPostResponse(rsp)
+}
+
+// GetAnalysisApiV1AgentAnalysisAnalysisIdGetWithResponse request returning *GetAnalysisApiV1AgentAnalysisAnalysisIdGetResponse
+func (c *ClientWithResponses) GetAnalysisApiV1AgentAnalysisAnalysisIdGetWithResponse(ctx context.Context, analysisId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetAnalysisApiV1AgentAnalysisAnalysisIdGetResponse, error) {
+	rsp, err := c.GetAnalysisApiV1AgentAnalysisAnalysisIdGet(ctx, analysisId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetAnalysisApiV1AgentAnalysisAnalysisIdGetResponse(rsp)
 }
 
 // GetDashboardApiV1AgentDashboardGetWithResponse request returning *GetDashboardApiV1AgentDashboardGetResponse
@@ -1346,6 +2074,32 @@ func (c *ClientWithResponses) GetPipelineRunApiV1AgentPipelineRunsPipelineRunIdG
 	return ParseGetPipelineRunApiV1AgentPipelineRunsPipelineRunIdGetResponse(rsp)
 }
 
+// ListSchedulesApiV1AgentScheduleGetWithResponse request returning *ListSchedulesApiV1AgentScheduleGetResponse
+func (c *ClientWithResponses) ListSchedulesApiV1AgentScheduleGetWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListSchedulesApiV1AgentScheduleGetResponse, error) {
+	rsp, err := c.ListSchedulesApiV1AgentScheduleGet(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListSchedulesApiV1AgentScheduleGetResponse(rsp)
+}
+
+// UpsertScheduleApiV1AgentSchedulePostWithBodyWithResponse request with arbitrary body returning *UpsertScheduleApiV1AgentSchedulePostResponse
+func (c *ClientWithResponses) UpsertScheduleApiV1AgentSchedulePostWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpsertScheduleApiV1AgentSchedulePostResponse, error) {
+	rsp, err := c.UpsertScheduleApiV1AgentSchedulePostWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpsertScheduleApiV1AgentSchedulePostResponse(rsp)
+}
+
+func (c *ClientWithResponses) UpsertScheduleApiV1AgentSchedulePostWithResponse(ctx context.Context, body UpsertScheduleApiV1AgentSchedulePostJSONRequestBody, reqEditors ...RequestEditorFn) (*UpsertScheduleApiV1AgentSchedulePostResponse, error) {
+	rsp, err := c.UpsertScheduleApiV1AgentSchedulePost(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpsertScheduleApiV1AgentSchedulePostResponse(rsp)
+}
+
 // GetSlateApiV1AgentSlateGetWithResponse request returning *GetSlateApiV1AgentSlateGetResponse
 func (c *ClientWithResponses) GetSlateApiV1AgentSlateGetWithResponse(ctx context.Context, params *GetSlateApiV1AgentSlateGetParams, reqEditors ...RequestEditorFn) (*GetSlateApiV1AgentSlateGetResponse, error) {
 	rsp, err := c.GetSlateApiV1AgentSlateGet(ctx, params, reqEditors...)
@@ -1353,6 +2107,145 @@ func (c *ClientWithResponses) GetSlateApiV1AgentSlateGetWithResponse(ctx context
 		return nil, err
 	}
 	return ParseGetSlateApiV1AgentSlateGetResponse(rsp)
+}
+
+// ParseListAlertsApiV1AgentAlertsGetResponse parses an HTTP response from a ListAlertsApiV1AgentAlertsGetWithResponse call
+func ParseListAlertsApiV1AgentAlertsGetResponse(rsp *http.Response) (*ListAlertsApiV1AgentAlertsGetResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListAlertsApiV1AgentAlertsGetResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest PageEnvelopeAlertData
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest HTTPValidationError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseAcknowledgeAlertApiV1AgentAlertsAlertIdAcknowledgePutResponse parses an HTTP response from a AcknowledgeAlertApiV1AgentAlertsAlertIdAcknowledgePutWithResponse call
+func ParseAcknowledgeAlertApiV1AgentAlertsAlertIdAcknowledgePutResponse(rsp *http.Response) (*AcknowledgeAlertApiV1AgentAlertsAlertIdAcknowledgePutResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &AcknowledgeAlertApiV1AgentAlertsAlertIdAcknowledgePutResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest EnvelopeAlertData
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest HTTPValidationError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateAnalysisApiV1AgentAnalysisPostResponse parses an HTTP response from a CreateAnalysisApiV1AgentAnalysisPostWithResponse call
+func ParseCreateAnalysisApiV1AgentAnalysisPostResponse(rsp *http.Response) (*CreateAnalysisApiV1AgentAnalysisPostResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateAnalysisApiV1AgentAnalysisPostResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest EnvelopeAnalysisData
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest EnvelopeAnalysisData
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest HTTPValidationError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetAnalysisApiV1AgentAnalysisAnalysisIdGetResponse parses an HTTP response from a GetAnalysisApiV1AgentAnalysisAnalysisIdGetWithResponse call
+func ParseGetAnalysisApiV1AgentAnalysisAnalysisIdGetResponse(rsp *http.Response) (*GetAnalysisApiV1AgentAnalysisAnalysisIdGetResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetAnalysisApiV1AgentAnalysisAnalysisIdGetResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest EnvelopeAnalysisData
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest HTTPValidationError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	}
+
+	return response, nil
 }
 
 // ParseGetDashboardApiV1AgentDashboardGetResponse parses an HTTP response from a GetDashboardApiV1AgentDashboardGetWithResponse call
@@ -1533,6 +2426,72 @@ func ParseGetPipelineRunApiV1AgentPipelineRunsPipelineRunIdGetResponse(rsp *http
 			return nil, err
 		}
 		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest HTTPValidationError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListSchedulesApiV1AgentScheduleGetResponse parses an HTTP response from a ListSchedulesApiV1AgentScheduleGetWithResponse call
+func ParseListSchedulesApiV1AgentScheduleGetResponse(rsp *http.Response) (*ListSchedulesApiV1AgentScheduleGetResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListSchedulesApiV1AgentScheduleGetResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest EnvelopeScheduleListData
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUpsertScheduleApiV1AgentSchedulePostResponse parses an HTTP response from a UpsertScheduleApiV1AgentSchedulePostWithResponse call
+func ParseUpsertScheduleApiV1AgentSchedulePostResponse(rsp *http.Response) (*UpsertScheduleApiV1AgentSchedulePostResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpsertScheduleApiV1AgentSchedulePostResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest EnvelopeScheduleData
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest EnvelopeScheduleData
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
 		var dest HTTPValidationError

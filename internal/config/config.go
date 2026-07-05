@@ -28,6 +28,8 @@ const (
 	DefaultBookieEmulatorURL    = "http://localhost:8005"
 	DefaultPredictionEngineURL  = "http://localhost:8004"
 	DefaultTimeout              = 10 * time.Second
+	// DefaultAnalysisTimeout bounds bb ask: LLM generation is slow.
+	DefaultAnalysisTimeout = 120 * time.Second
 )
 
 // Config holds every setting the CLI needs to talk to the backend services.
@@ -40,6 +42,7 @@ type Config struct {
 	DefaultLeague        string
 	Format               string
 	Timeout              time.Duration
+	AnalysisTimeout      time.Duration
 }
 
 // fileConfig mirrors the YAML config file. Pointer fields distinguish
@@ -54,6 +57,7 @@ type fileConfig struct {
 	DefaultLeague        *string `yaml:"default_league"`
 	Format               *string `yaml:"format"`
 	Timeout              *string `yaml:"timeout"`
+	AnalysisTimeout      *string `yaml:"analysis_timeout"`
 }
 
 // Default returns the built-in configuration.
@@ -66,6 +70,7 @@ func Default() *Config {
 		PredictionEngineURL:  DefaultPredictionEngineURL,
 		Format:               FormatTable,
 		Timeout:              DefaultTimeout,
+		AnalysisTimeout:      DefaultAnalysisTimeout,
 	}
 }
 
@@ -118,6 +123,13 @@ func applyFile(cfg *Config, path string) error {
 			return fmt.Errorf("parsing timeout in config file %s: %w", path, err)
 		}
 		cfg.Timeout = d
+	}
+	if fc.AnalysisTimeout != nil {
+		d, err := time.ParseDuration(*fc.AnalysisTimeout)
+		if err != nil {
+			return fmt.Errorf("parsing analysis_timeout in config file %s: %w", path, err)
+		}
+		cfg.AnalysisTimeout = d
 	}
 	return nil
 }

@@ -2,7 +2,7 @@
 
 ## Service Purpose
 
-Go terminal interface for viewing edges, predictions, paper bets, and performance. Built with Cobra for commands and Charm (Lip Gloss, Glamour) for styled terminal output.
+Go terminal interface for viewing edges, predictions, paper bets, and performance, asking the LLM analyst (`bb ask`), and managing pipeline schedules. Built with Cobra for commands and Charm (Lip Gloss, Glamour) for styled terminal output.
 
 ## Language & Conventions
 

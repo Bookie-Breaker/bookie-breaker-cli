@@ -12,11 +12,19 @@ var (
 	Red    = lipgloss.NewStyle().Foreground(lipgloss.Color("1"))
 	Yellow = lipgloss.NewStyle().Foreground(lipgloss.Color("3"))
 
+	// Faint renders de-emphasized footers and metadata.
+	Faint = lipgloss.NewStyle().Faint(true)
+
 	// CardBorder frames confirmation cards and stat blocks.
 	CardBorder = lipgloss.NewStyle().
 			Border(lipgloss.RoundedBorder()).
 			Padding(0, 1)
 )
+
+// Dim renders s de-emphasized (footers, metadata).
+func Dim(s string) string {
+	return Faint.Render(s)
+}
 
 // ColorResult colors a bet result: WIN green, LOSS red, PENDING yellow.
 func ColorResult(result string) string {

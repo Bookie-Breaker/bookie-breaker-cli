@@ -18,13 +18,16 @@ import (
 const UserAgent = "bookie-breaker-cli/bb"
 
 // Clients bundles the generated *WithResponses clients over a single
-// http.Client with the configured timeout.
+// http.Client with the configured timeout. AgentAnalysis is the same agent
+// client over a longer-timeout http.Client: LLM analysis calls (bb ask)
+// routinely exceed the default request timeout.
 type Clients struct {
-	Agent      *agentservice.ClientWithResponses
-	Lines      *linesservice.ClientWithResponses
-	Emulator   *bookieemulator.ClientWithResponses
-	Prediction *predictionengine.ClientWithResponses
-	HTTP       *http.Client
+	Agent         *agentservice.ClientWithResponses
+	AgentAnalysis *agentservice.ClientWithResponses
+	Lines         *linesservice.ClientWithResponses
+	Emulator      *bookieemulator.ClientWithResponses
+	Prediction    *predictionengine.ClientWithResponses
+	HTTP          *http.Client
 }
 
 // NewClients builds the client bundle from the resolved configuration.
@@ -41,6 +44,16 @@ func NewClients(cfg *config.Config) (*Clients, error) {
 		agentservice.WithRequestEditorFn(userAgent))
 	if err != nil {
 		return nil, fmt.Errorf("building agent client: %w", err)
+	}
+
+	// A plain http.Client timeout caps requests regardless of context, so
+	// slow LLM calls need their own client.
+	analysisHTTP := &http.Client{Timeout: cfg.AnalysisTimeout}
+	agentAnalysis, err := agentservice.NewClientWithResponses(cfg.AgentURL,
+		agentservice.WithHTTPClient(analysisHTTP),
+		agentservice.WithRequestEditorFn(userAgent))
+	if err != nil {
+		return nil, fmt.Errorf("building agent analysis client: %w", err)
 	}
 
 	lines, err := linesservice.NewClientWithResponses(cfg.LinesServiceURL,
@@ -65,10 +78,11 @@ func NewClients(cfg *config.Config) (*Clients, error) {
 	}
 
 	return &Clients{
-		Agent:      agent,
-		Lines:      lines,
-		Emulator:   emulator,
-		Prediction: prediction,
-		HTTP:       httpClient,
+		Agent:         agent,
+		AgentAnalysis: agentAnalysis,
+		Lines:         lines,
+		Emulator:      emulator,
+		Prediction:    prediction,
+		HTTP:          httpClient,
 	}, nil
 }
