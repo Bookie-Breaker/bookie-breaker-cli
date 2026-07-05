@@ -1,0 +1,5 @@
+package: agentservice
+output: internal/client/agentservice/client.gen.go
+generate:
+  models: true
+  client: true

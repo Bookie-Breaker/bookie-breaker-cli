@@ -1,0 +1,5 @@
+package: linesservice
+output: internal/client/linesservice/client.gen.go
+generate:
+  models: true
+  client: true

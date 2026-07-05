@@ -1,10 +1,12 @@
-// Package main is the bb CLI entry point. Cobra commands arrive in Phase 3;
-// this stub keeps the module buildable while Phase 2 ships only the
-// generated API clients under internal/client.
+// Package main is the bb CLI entry point.
 package main
 
-import "fmt"
+import (
+	"os"
+
+	"github.com/Bookie-Breaker/bookie-breaker-cli/internal/cmd"
+)
 
 func main() {
-	fmt.Println("bb: BookieBreaker CLI — commands arrive in Phase 3")
+	os.Exit(cmd.Execute())
 }
