@@ -111,6 +111,7 @@ type EdgeDetailData struct {
 	ExpectedValue         float32              `json:"expected_value"`
 	ExpiresAt             string               `json:"expires_at"`
 	Game                  *EdgeGame            `json:"game"`
+	GameExternalId        string               `json:"game_external_id"`
 	GameId                string               `json:"game_id"`
 	Id                    string               `json:"id"`
 	ImpliedProbability    float32              `json:"implied_probability"`
@@ -535,6 +536,9 @@ type GetSlateApiV1AgentSlateGetParams struct {
 // CreateAnalysisApiV1AgentAnalysisPostJSONRequestBody defines body for CreateAnalysisApiV1AgentAnalysisPost for application/json ContentType.
 type CreateAnalysisApiV1AgentAnalysisPostJSONRequestBody = AnalysisRequest
 
+// CreateAnalysisStreamApiV1AgentAnalysisStreamPostJSONRequestBody defines body for CreateAnalysisStreamApiV1AgentAnalysisStreamPost for application/json ContentType.
+type CreateAnalysisStreamApiV1AgentAnalysisStreamPostJSONRequestBody = AnalysisRequest
+
 // RunPipelineApiV1AgentPipelineRunPostJSONRequestBody defines body for RunPipelineApiV1AgentPipelineRunPost for application/json ContentType.
 type RunPipelineApiV1AgentPipelineRunPostJSONRequestBody = PipelineRunRequest
 
@@ -687,6 +691,11 @@ type ClientInterface interface {
 
 	CreateAnalysisApiV1AgentAnalysisPost(ctx context.Context, body CreateAnalysisApiV1AgentAnalysisPostJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// CreateAnalysisStreamApiV1AgentAnalysisStreamPostWithBody request with any body
+	CreateAnalysisStreamApiV1AgentAnalysisStreamPostWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateAnalysisStreamApiV1AgentAnalysisStreamPost(ctx context.Context, body CreateAnalysisStreamApiV1AgentAnalysisStreamPostJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetAnalysisApiV1AgentAnalysisAnalysisIdGet request
 	GetAnalysisApiV1AgentAnalysisAnalysisIdGet(ctx context.Context, analysisId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -760,6 +769,30 @@ func (c *Client) CreateAnalysisApiV1AgentAnalysisPostWithBody(ctx context.Contex
 
 func (c *Client) CreateAnalysisApiV1AgentAnalysisPost(ctx context.Context, body CreateAnalysisApiV1AgentAnalysisPostJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewCreateAnalysisApiV1AgentAnalysisPostRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateAnalysisStreamApiV1AgentAnalysisStreamPostWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateAnalysisStreamApiV1AgentAnalysisStreamPostRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateAnalysisStreamApiV1AgentAnalysisStreamPost(ctx context.Context, body CreateAnalysisStreamApiV1AgentAnalysisStreamPostJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateAnalysisStreamApiV1AgentAnalysisStreamPostRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -1066,6 +1099,46 @@ func NewCreateAnalysisApiV1AgentAnalysisPostRequestWithBody(server string, conte
 	}
 
 	operationPath := fmt.Sprintf("/api/v1/agent/analysis")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewCreateAnalysisStreamApiV1AgentAnalysisStreamPostRequest calls the generic CreateAnalysisStreamApiV1AgentAnalysisStreamPost builder with application/json body
+func NewCreateAnalysisStreamApiV1AgentAnalysisStreamPostRequest(server string, body CreateAnalysisStreamApiV1AgentAnalysisStreamPostJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateAnalysisStreamApiV1AgentAnalysisStreamPostRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewCreateAnalysisStreamApiV1AgentAnalysisStreamPostRequestWithBody generates requests for CreateAnalysisStreamApiV1AgentAnalysisStreamPost with any type of body
+func NewCreateAnalysisStreamApiV1AgentAnalysisStreamPostRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/agent/analysis/stream")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -1634,6 +1707,11 @@ type ClientWithResponsesInterface interface {
 
 	CreateAnalysisApiV1AgentAnalysisPostWithResponse(ctx context.Context, body CreateAnalysisApiV1AgentAnalysisPostJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateAnalysisApiV1AgentAnalysisPostResponse, error)
 
+	// CreateAnalysisStreamApiV1AgentAnalysisStreamPostWithBodyWithResponse request with any body
+	CreateAnalysisStreamApiV1AgentAnalysisStreamPostWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateAnalysisStreamApiV1AgentAnalysisStreamPostResponse, error)
+
+	CreateAnalysisStreamApiV1AgentAnalysisStreamPostWithResponse(ctx context.Context, body CreateAnalysisStreamApiV1AgentAnalysisStreamPostJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateAnalysisStreamApiV1AgentAnalysisStreamPostResponse, error)
+
 	// GetAnalysisApiV1AgentAnalysisAnalysisIdGetWithResponse request
 	GetAnalysisApiV1AgentAnalysisAnalysisIdGetWithResponse(ctx context.Context, analysisId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetAnalysisApiV1AgentAnalysisAnalysisIdGetResponse, error)
 
@@ -1733,6 +1811,29 @@ func (r CreateAnalysisApiV1AgentAnalysisPostResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r CreateAnalysisApiV1AgentAnalysisPostResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type CreateAnalysisStreamApiV1AgentAnalysisStreamPostResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *interface{}
+	JSON422      *HTTPValidationError
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateAnalysisStreamApiV1AgentAnalysisStreamPostResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateAnalysisStreamApiV1AgentAnalysisStreamPostResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -2003,6 +2104,23 @@ func (c *ClientWithResponses) CreateAnalysisApiV1AgentAnalysisPostWithResponse(c
 	return ParseCreateAnalysisApiV1AgentAnalysisPostResponse(rsp)
 }
 
+// CreateAnalysisStreamApiV1AgentAnalysisStreamPostWithBodyWithResponse request with arbitrary body returning *CreateAnalysisStreamApiV1AgentAnalysisStreamPostResponse
+func (c *ClientWithResponses) CreateAnalysisStreamApiV1AgentAnalysisStreamPostWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateAnalysisStreamApiV1AgentAnalysisStreamPostResponse, error) {
+	rsp, err := c.CreateAnalysisStreamApiV1AgentAnalysisStreamPostWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateAnalysisStreamApiV1AgentAnalysisStreamPostResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateAnalysisStreamApiV1AgentAnalysisStreamPostWithResponse(ctx context.Context, body CreateAnalysisStreamApiV1AgentAnalysisStreamPostJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateAnalysisStreamApiV1AgentAnalysisStreamPostResponse, error) {
+	rsp, err := c.CreateAnalysisStreamApiV1AgentAnalysisStreamPost(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateAnalysisStreamApiV1AgentAnalysisStreamPostResponse(rsp)
+}
+
 // GetAnalysisApiV1AgentAnalysisAnalysisIdGetWithResponse request returning *GetAnalysisApiV1AgentAnalysisAnalysisIdGetResponse
 func (c *ClientWithResponses) GetAnalysisApiV1AgentAnalysisAnalysisIdGetWithResponse(ctx context.Context, analysisId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetAnalysisApiV1AgentAnalysisAnalysisIdGetResponse, error) {
 	rsp, err := c.GetAnalysisApiV1AgentAnalysisAnalysisIdGet(ctx, analysisId, reqEditors...)
@@ -2209,6 +2327,42 @@ func ParseCreateAnalysisApiV1AgentAnalysisPostResponse(rsp *http.Response) (*Cre
 			return nil, err
 		}
 		response.JSON422 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateAnalysisStreamApiV1AgentAnalysisStreamPostResponse parses an HTTP response from a CreateAnalysisStreamApiV1AgentAnalysisStreamPostWithResponse call
+func ParseCreateAnalysisStreamApiV1AgentAnalysisStreamPostResponse(rsp *http.Response) (*CreateAnalysisStreamApiV1AgentAnalysisStreamPostResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateAnalysisStreamApiV1AgentAnalysisStreamPostResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest interface{}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest HTTPValidationError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case rsp.StatusCode == 200:
+		// Content-type (text/event-stream) unsupported
 
 	}
 
