@@ -135,9 +135,9 @@ const (
 
 // Defines values for GetPerformanceApiV1EmulatorPerformanceGetParamsMarketType.
 const (
-	MONEYLINE GetPerformanceApiV1EmulatorPerformanceGetParamsMarketType = "MONEYLINE"
-	SPREAD    GetPerformanceApiV1EmulatorPerformanceGetParamsMarketType = "SPREAD"
-	TOTAL     GetPerformanceApiV1EmulatorPerformanceGetParamsMarketType = "TOTAL"
+	GetPerformanceApiV1EmulatorPerformanceGetParamsMarketTypeMONEYLINE GetPerformanceApiV1EmulatorPerformanceGetParamsMarketType = "MONEYLINE"
+	GetPerformanceApiV1EmulatorPerformanceGetParamsMarketTypeSPREAD    GetPerformanceApiV1EmulatorPerformanceGetParamsMarketType = "SPREAD"
+	GetPerformanceApiV1EmulatorPerformanceGetParamsMarketTypeTOTAL     GetPerformanceApiV1EmulatorPerformanceGetParamsMarketType = "TOTAL"
 )
 
 // Defines values for GetPerformanceApiV1EmulatorPerformanceGetParamsWindow.
@@ -154,6 +154,31 @@ const (
 	GetBreakdownApiV1EmulatorPerformanceBreakdownGetParamsGroupByMarketType GetBreakdownApiV1EmulatorPerformanceBreakdownGetParamsGroupBy = "market_type"
 	GetBreakdownApiV1EmulatorPerformanceBreakdownGetParamsGroupByMonth      GetBreakdownApiV1EmulatorPerformanceBreakdownGetParamsGroupBy = "month"
 	GetBreakdownApiV1EmulatorPerformanceBreakdownGetParamsGroupBySportsbook GetBreakdownApiV1EmulatorPerformanceBreakdownGetParamsGroupBy = "sportsbook"
+)
+
+// Defines values for GetCalibrationApiV1EmulatorPerformanceCalibrationGetParamsLeague.
+const (
+	MLB     GetCalibrationApiV1EmulatorPerformanceCalibrationGetParamsLeague = "MLB"
+	NBA     GetCalibrationApiV1EmulatorPerformanceCalibrationGetParamsLeague = "NBA"
+	NCAABB  GetCalibrationApiV1EmulatorPerformanceCalibrationGetParamsLeague = "NCAA_BB"
+	NCAABSB GetCalibrationApiV1EmulatorPerformanceCalibrationGetParamsLeague = "NCAA_BSB"
+	NCAAFB  GetCalibrationApiV1EmulatorPerformanceCalibrationGetParamsLeague = "NCAA_FB"
+	NFL     GetCalibrationApiV1EmulatorPerformanceCalibrationGetParamsLeague = "NFL"
+)
+
+// Defines values for GetCalibrationApiV1EmulatorPerformanceCalibrationGetParamsMarketType.
+const (
+	GetCalibrationApiV1EmulatorPerformanceCalibrationGetParamsMarketTypeMONEYLINE GetCalibrationApiV1EmulatorPerformanceCalibrationGetParamsMarketType = "MONEYLINE"
+	GetCalibrationApiV1EmulatorPerformanceCalibrationGetParamsMarketTypeSPREAD    GetCalibrationApiV1EmulatorPerformanceCalibrationGetParamsMarketType = "SPREAD"
+	GetCalibrationApiV1EmulatorPerformanceCalibrationGetParamsMarketTypeTOTAL     GetCalibrationApiV1EmulatorPerformanceCalibrationGetParamsMarketType = "TOTAL"
+)
+
+// Defines values for GetCalibrationApiV1EmulatorPerformanceCalibrationGetParamsWindow.
+const (
+	AllTime GetCalibrationApiV1EmulatorPerformanceCalibrationGetParamsWindow = "all_time"
+	Daily   GetCalibrationApiV1EmulatorPerformanceCalibrationGetParamsWindow = "daily"
+	Monthly GetCalibrationApiV1EmulatorPerformanceCalibrationGetParamsWindow = "monthly"
+	Weekly  GetCalibrationApiV1EmulatorPerformanceCalibrationGetParamsWindow = "weekly"
 )
 
 // BankrollConfigData defines model for BankrollConfigData.
@@ -276,6 +301,25 @@ type BreakdownEntry struct {
 	Wins              int      `json:"wins"`
 }
 
+// CalibrationBinData defines model for CalibrationBinData.
+type CalibrationBinData struct {
+	ActualWinRate           *float32 `json:"actual_win_rate"`
+	AvgPredictedProbability *float32 `json:"avg_predicted_probability"`
+	BetCount                int      `json:"bet_count"`
+	Lower                   float32  `json:"lower"`
+	Upper                   float32  `json:"upper"`
+}
+
+// CalibrationData defines model for CalibrationData.
+type CalibrationData struct {
+	Bins             []CalibrationBinData `json:"bins"`
+	BrierScore       *float32             `json:"brier_score"`
+	CalibrationError *float32             `json:"calibration_error"`
+	NBins            int                  `json:"n_bins"`
+	Period           PeriodData           `json:"period"`
+	TotalGraded      int                  `json:"total_graded"`
+}
+
 // EnvelopeBankrollData defines model for Envelope_BankrollData_.
 type EnvelopeBankrollData struct {
 	Data BankrollData `json:"data"`
@@ -304,6 +348,12 @@ type EnvelopeBetDetailData struct {
 type EnvelopeBreakdownData struct {
 	Data BreakdownData `json:"data"`
 	Meta Meta          `json:"meta"`
+}
+
+// EnvelopeCalibrationData defines model for Envelope_CalibrationData_.
+type EnvelopeCalibrationData struct {
+	Data CalibrationData `json:"data"`
+	Meta Meta            `json:"meta"`
 }
 
 // EnvelopeHealthData defines model for Envelope_HealthData_.
@@ -589,6 +639,36 @@ type GetBreakdownApiV1EmulatorPerformanceBreakdownGetParams struct {
 // GetBreakdownApiV1EmulatorPerformanceBreakdownGetParamsGroupBy defines parameters for GetBreakdownApiV1EmulatorPerformanceBreakdownGet.
 type GetBreakdownApiV1EmulatorPerformanceBreakdownGetParamsGroupBy string
 
+// GetCalibrationApiV1EmulatorPerformanceCalibrationGetParams defines parameters for GetCalibrationApiV1EmulatorPerformanceCalibrationGet.
+type GetCalibrationApiV1EmulatorPerformanceCalibrationGetParams struct {
+	// League Filter by league.
+	League *GetCalibrationApiV1EmulatorPerformanceCalibrationGetParamsLeague `form:"league,omitempty" json:"league,omitempty"`
+
+	// MarketType Filter by market type.
+	MarketType *GetCalibrationApiV1EmulatorPerformanceCalibrationGetParamsMarketType `form:"market_type,omitempty" json:"market_type,omitempty"`
+
+	// DateFrom Start date (ISO 8601) on placed_at.
+	DateFrom *time.Time `form:"date_from,omitempty" json:"date_from,omitempty"`
+
+	// DateTo End date (ISO 8601) on placed_at.
+	DateTo *time.Time `form:"date_to,omitempty" json:"date_to,omitempty"`
+
+	// Window Rolling window applied to graded_at.
+	Window *GetCalibrationApiV1EmulatorPerformanceCalibrationGetParamsWindow `form:"window,omitempty" json:"window,omitempty"`
+
+	// Bins Number of equal-width probability bins.
+	Bins *int `form:"bins,omitempty" json:"bins,omitempty"`
+}
+
+// GetCalibrationApiV1EmulatorPerformanceCalibrationGetParamsLeague defines parameters for GetCalibrationApiV1EmulatorPerformanceCalibrationGet.
+type GetCalibrationApiV1EmulatorPerformanceCalibrationGetParamsLeague string
+
+// GetCalibrationApiV1EmulatorPerformanceCalibrationGetParamsMarketType defines parameters for GetCalibrationApiV1EmulatorPerformanceCalibrationGet.
+type GetCalibrationApiV1EmulatorPerformanceCalibrationGetParamsMarketType string
+
+// GetCalibrationApiV1EmulatorPerformanceCalibrationGetParamsWindow defines parameters for GetCalibrationApiV1EmulatorPerformanceCalibrationGet.
+type GetCalibrationApiV1EmulatorPerformanceCalibrationGetParamsWindow string
+
 // PlaceBetApiV1EmulatorBetsPostJSONRequestBody defines body for PlaceBetApiV1EmulatorBetsPost for application/json ContentType.
 type PlaceBetApiV1EmulatorBetsPostJSONRequestBody = PlaceBetRequest
 
@@ -760,6 +840,9 @@ type ClientInterface interface {
 
 	// GetBreakdownApiV1EmulatorPerformanceBreakdownGet request
 	GetBreakdownApiV1EmulatorPerformanceBreakdownGet(ctx context.Context, params *GetBreakdownApiV1EmulatorPerformanceBreakdownGetParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetCalibrationApiV1EmulatorPerformanceCalibrationGet request
+	GetCalibrationApiV1EmulatorPerformanceCalibrationGet(ctx context.Context, params *GetCalibrationApiV1EmulatorPerformanceCalibrationGetParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
 func (c *Client) GetBankrollApiV1EmulatorBankrollGet(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -884,6 +967,18 @@ func (c *Client) GetPerformanceApiV1EmulatorPerformanceGet(ctx context.Context, 
 
 func (c *Client) GetBreakdownApiV1EmulatorPerformanceBreakdownGet(ctx context.Context, params *GetBreakdownApiV1EmulatorPerformanceBreakdownGetParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetBreakdownApiV1EmulatorPerformanceBreakdownGetRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetCalibrationApiV1EmulatorPerformanceCalibrationGet(ctx context.Context, params *GetCalibrationApiV1EmulatorPerformanceCalibrationGetParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetCalibrationApiV1EmulatorPerformanceCalibrationGetRequest(c.Server, params)
 	if err != nil {
 		return nil, err
 	}
@@ -1534,6 +1629,135 @@ func NewGetBreakdownApiV1EmulatorPerformanceBreakdownGetRequest(server string, p
 	return req, nil
 }
 
+// NewGetCalibrationApiV1EmulatorPerformanceCalibrationGetRequest generates requests for GetCalibrationApiV1EmulatorPerformanceCalibrationGet
+func NewGetCalibrationApiV1EmulatorPerformanceCalibrationGetRequest(server string, params *GetCalibrationApiV1EmulatorPerformanceCalibrationGetParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/emulator/performance/calibration")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.League != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "league", runtime.ParamLocationQuery, *params.League); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.MarketType != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "market_type", runtime.ParamLocationQuery, *params.MarketType); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.DateFrom != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "date_from", runtime.ParamLocationQuery, *params.DateFrom); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.DateTo != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "date_to", runtime.ParamLocationQuery, *params.DateTo); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Window != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "window", runtime.ParamLocationQuery, *params.Window); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Bins != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "bins", runtime.ParamLocationQuery, *params.Bins); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 func (c *Client) applyEditors(ctx context.Context, req *http.Request, additionalEditors []RequestEditorFn) error {
 	for _, r := range c.RequestEditors {
 		if err := r(ctx, req); err != nil {
@@ -1607,6 +1831,9 @@ type ClientWithResponsesInterface interface {
 
 	// GetBreakdownApiV1EmulatorPerformanceBreakdownGetWithResponse request
 	GetBreakdownApiV1EmulatorPerformanceBreakdownGetWithResponse(ctx context.Context, params *GetBreakdownApiV1EmulatorPerformanceBreakdownGetParams, reqEditors ...RequestEditorFn) (*GetBreakdownApiV1EmulatorPerformanceBreakdownGetResponse, error)
+
+	// GetCalibrationApiV1EmulatorPerformanceCalibrationGetWithResponse request
+	GetCalibrationApiV1EmulatorPerformanceCalibrationGetWithResponse(ctx context.Context, params *GetCalibrationApiV1EmulatorPerformanceCalibrationGetParams, reqEditors ...RequestEditorFn) (*GetCalibrationApiV1EmulatorPerformanceCalibrationGetResponse, error)
 }
 
 type GetBankrollApiV1EmulatorBankrollGetResponse struct {
@@ -1814,6 +2041,29 @@ func (r GetBreakdownApiV1EmulatorPerformanceBreakdownGetResponse) StatusCode() i
 	return 0
 }
 
+type GetCalibrationApiV1EmulatorPerformanceCalibrationGetResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *EnvelopeCalibrationData
+	JSON422      *HTTPValidationError
+}
+
+// Status returns HTTPResponse.Status
+func (r GetCalibrationApiV1EmulatorPerformanceCalibrationGetResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetCalibrationApiV1EmulatorPerformanceCalibrationGetResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 // GetBankrollApiV1EmulatorBankrollGetWithResponse request returning *GetBankrollApiV1EmulatorBankrollGetResponse
 func (c *ClientWithResponses) GetBankrollApiV1EmulatorBankrollGetWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetBankrollApiV1EmulatorBankrollGetResponse, error) {
 	rsp, err := c.GetBankrollApiV1EmulatorBankrollGet(ctx, reqEditors...)
@@ -1909,6 +2159,15 @@ func (c *ClientWithResponses) GetBreakdownApiV1EmulatorPerformanceBreakdownGetWi
 		return nil, err
 	}
 	return ParseGetBreakdownApiV1EmulatorPerformanceBreakdownGetResponse(rsp)
+}
+
+// GetCalibrationApiV1EmulatorPerformanceCalibrationGetWithResponse request returning *GetCalibrationApiV1EmulatorPerformanceCalibrationGetResponse
+func (c *ClientWithResponses) GetCalibrationApiV1EmulatorPerformanceCalibrationGetWithResponse(ctx context.Context, params *GetCalibrationApiV1EmulatorPerformanceCalibrationGetParams, reqEditors ...RequestEditorFn) (*GetCalibrationApiV1EmulatorPerformanceCalibrationGetResponse, error) {
+	rsp, err := c.GetCalibrationApiV1EmulatorPerformanceCalibrationGet(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetCalibrationApiV1EmulatorPerformanceCalibrationGetResponse(rsp)
 }
 
 // ParseGetBankrollApiV1EmulatorBankrollGetResponse parses an HTTP response from a GetBankrollApiV1EmulatorBankrollGetWithResponse call
@@ -2177,6 +2436,39 @@ func ParseGetBreakdownApiV1EmulatorPerformanceBreakdownGetResponse(rsp *http.Res
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest EnvelopeBreakdownData
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest HTTPValidationError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetCalibrationApiV1EmulatorPerformanceCalibrationGetResponse parses an HTTP response from a GetCalibrationApiV1EmulatorPerformanceCalibrationGetWithResponse call
+func ParseGetCalibrationApiV1EmulatorPerformanceCalibrationGetResponse(rsp *http.Response) (*GetCalibrationApiV1EmulatorPerformanceCalibrationGetResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetCalibrationApiV1EmulatorPerformanceCalibrationGetResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest EnvelopeCalibrationData
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
