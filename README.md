@@ -110,11 +110,25 @@ bb performance --breakdown market_type
 
 ### bb pipeline
 
-Trigger a pipeline run and poll its status.
+Trigger a pipeline run, poll its status, and manage cron schedules for automated runs.
 
 ```bash
 bb pipeline run --league NFL --force-refresh --auto-bet=false
 bb pipeline status <run_id>
+bb pipeline schedule list
+bb pipeline schedule set --league NBA --cron "0 10,14,18 * * *" --timezone America/New_York --min-edge 4
+```
+
+### bb ask
+
+Ask the agent's LLM analyst a question. Scope with `--edge` (edge breakdown) or `--game`
+(game preview); unscoped questions get a performance review. Rendered as markdown; LLM
+generation can take a minute or two (`analysis_timeout` in config, default 120s).
+
+```bash
+bb ask "Why do you like the over in Lakers vs Celtics?" --game <game_id>
+bb ask --edge <edge_id> "What would make this edge wrong?"
+bb ask "What should we change about our betting?"
 ```
 
 ### bb health

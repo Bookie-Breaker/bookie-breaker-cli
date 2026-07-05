@@ -45,6 +45,7 @@ func TestLoadDefaults(t *testing.T) {
 		PredictionEngineURL:  "http://localhost:8004",
 		Format:               FormatTable,
 		Timeout:              10 * time.Second,
+		AnalysisTimeout:      120 * time.Second,
 	}
 	if *cfg != want {
 		t.Errorf("Load() = %+v, want %+v", *cfg, want)

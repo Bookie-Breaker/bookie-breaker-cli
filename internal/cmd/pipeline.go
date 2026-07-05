@@ -19,8 +19,140 @@ func NewPipelineCmd(a *app) *cobra.Command {
 		Use:   "pipeline",
 		Short: "Trigger and inspect prediction pipeline runs",
 	}
-	cmd.AddCommand(newPipelineRunCmd(a), newPipelineStatusCmd(a))
+	cmd.AddCommand(newPipelineRunCmd(a), newPipelineStatusCmd(a), newPipelineScheduleCmd(a))
 	return cmd
+}
+
+func newPipelineScheduleCmd(a *app) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "schedule",
+		Short: "Manage cron schedules for automated pipeline runs",
+	}
+	cmd.AddCommand(newScheduleListCmd(a), newScheduleSetCmd(a))
+	return cmd
+}
+
+func newScheduleListCmd(a *app) *cobra.Command {
+	return &cobra.Command{
+		Use:   "list",
+		Short: "List configured pipeline schedules",
+		Args:  cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, _ []string) error {
+			resp, err := a.clients.Agent.ListSchedulesApiV1AgentScheduleGetWithResponse(cmd.Context())
+			if err != nil {
+				return err
+			}
+			if resp.JSON200 == nil {
+				return api.ErrorFromResponse(resp.StatusCode(), resp.Body)
+			}
+
+			data := resp.JSON200.Data
+			if a.jsonOutput() {
+				return ui.PrintJSON(cmd.OutOrStdout(), data)
+			}
+
+			rows := make([][]string, 0, len(data.Schedules))
+			for _, s := range data.Schedules {
+				rows = append(rows, scheduleRow(s))
+			}
+			headers := []string{"LEAGUE", "CRON", "TZ", "ENABLED", "AUTO-BET", "MIN EDGE", "LAST RUN", "NEXT RUN"}
+			ui.Println(cmd.OutOrStdout(), ui.Table(headers, rows))
+			return nil
+		},
+	}
+}
+
+func newScheduleSetCmd(a *app) *cobra.Command {
+	var (
+		league      string
+		cron        string
+		timezone    string
+		description string
+		enabled     bool
+		autoBet     bool
+		minEdge     float32
+	)
+
+	cmd := &cobra.Command{
+		Use:   "set",
+		Short: "Create or update a league's pipeline schedule",
+		Args:  cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, _ []string) error {
+			if league == "" {
+				league = a.cfg.DefaultLeague
+			}
+			if league == "" {
+				return &api.UsageError{Err: fmt.Errorf("--league is required (or set a default league)")}
+			}
+			if cron == "" {
+				return &api.UsageError{Err: fmt.Errorf("--cron is required")}
+			}
+
+			body := agentservice.ScheduleRequest{
+				League:           league,
+				CronExpression:   cron,
+				Enabled:          &enabled,
+				AutoBet:          &autoBet,
+				MinEdgeThreshold: &minEdge,
+			}
+			if timezone != "" {
+				body.Timezone = &timezone
+			}
+			if description != "" {
+				body.Description = &description
+			}
+
+			resp, err := a.clients.Agent.UpsertScheduleApiV1AgentSchedulePostWithResponse(cmd.Context(), body)
+			if err != nil {
+				return err
+			}
+			envelope := resp.JSON201
+			created := envelope != nil
+			if envelope == nil {
+				envelope = resp.JSON200
+			}
+			if envelope == nil {
+				return api.ErrorFromResponse(resp.StatusCode(), resp.Body)
+			}
+
+			data := envelope.Data
+			if a.jsonOutput() {
+				return ui.PrintJSON(cmd.OutOrStdout(), data)
+			}
+
+			out := cmd.OutOrStdout()
+			verb := "updated"
+			if created {
+				verb = "created"
+			}
+			ui.Printf(out, "Schedule %s for %s\n", ui.Green.Render(verb), data.League)
+			headers := []string{"LEAGUE", "CRON", "TZ", "ENABLED", "AUTO-BET", "MIN EDGE", "LAST RUN", "NEXT RUN"}
+			ui.Println(out, ui.Table(headers, [][]string{scheduleRow(data)}))
+			return nil
+		},
+	}
+
+	cmd.Flags().StringVar(&league, "league", "", "league for this schedule (defaults to the configured league)")
+	cmd.Flags().StringVar(&cron, "cron", "", "cron expression, e.g. \"0 10,14,18 * * *\"")
+	cmd.Flags().StringVar(&timezone, "timezone", "", "IANA timezone for the cron expression (default UTC)")
+	cmd.Flags().StringVar(&description, "description", "", "human-readable schedule description")
+	cmd.Flags().BoolVar(&enabled, "enabled", true, "whether the schedule is active")
+	cmd.Flags().BoolVar(&autoBet, "auto-bet", true, "auto-place paper bets on scheduled runs")
+	cmd.Flags().Float32Var(&minEdge, "min-edge", 3.0, "minimum edge percentage for auto-betting")
+	return cmd
+}
+
+func scheduleRow(s agentservice.ScheduleData) []string {
+	return []string{
+		s.League,
+		s.CronExpression,
+		s.Timezone,
+		fmt.Sprintf("%t", s.Enabled),
+		fmt.Sprintf("%t", s.AutoBet),
+		fmt.Sprintf("%.1f%%", s.MinEdgeThreshold),
+		derefOr(s.LastRunAt, ui.Dash),
+		derefOr(s.NextRunAt, ui.Dash),
+	}
 }
 
 func newPipelineRunCmd(a *app) *cobra.Command {
