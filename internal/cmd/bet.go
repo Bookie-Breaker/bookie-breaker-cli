@@ -123,7 +123,7 @@ func newBetPlaceCmd(a *app) *cobra.Command {
 	flags.StringVar(&game, "game", "", "game UUID (required)")
 	flags.StringVar(&market, "market", "", "market type: SPREAD, TOTAL, MONEYLINE (required)")
 	flags.StringVar(&selection, "selection", "", "selection (required)")
-	flags.StringVar(&side, "side", "", "side: HOME, AWAY, OVER, UNDER (required)")
+	flags.StringVar(&side, "side", "", "side: HOME, AWAY, DRAW, OVER, UNDER (required; DRAW only on MONEYLINE)")
 	flags.Float64Var(&stake, "stake", 0, "stake in units (required)")
 	flags.Float64Var(&prob, "prob", 0, "predicted probability, 0-1 (required)")
 	flags.Float64Var(&edge, "edge", 0, "edge in percentage points (required)")

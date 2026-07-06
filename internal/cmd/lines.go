@@ -41,7 +41,7 @@ func NewLinesCmd(a *app) *cobra.Command {
 
 	cmd.Flags().StringVar(&market, "market", "", "filter by market type (SPREAD, TOTAL, MONEYLINE); defaults to SPREAD with --movement")
 	cmd.Flags().StringVar(&book, "book", "", "filter by sportsbook key (e.g. draftkings)")
-	cmd.Flags().StringVar(&side, "side", "", "filter by selection side (home, away, over, under)")
+	cmd.Flags().StringVar(&side, "side", "", "filter by selection side (home, away, draw, over, under)")
 	cmd.Flags().StringVar(&selection, "selection", "", "restrict movement history to one selection")
 	cmd.Flags().IntVar(&limit, "limit", 0, "max results")
 	cmd.Flags().BoolVar(&movement, "movement", false, "show line movement history instead of current lines")

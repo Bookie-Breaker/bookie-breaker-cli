@@ -43,6 +43,26 @@ func slateFixture() agentservice.SlateData {
 				Prediction:     nil,
 				Edges:          []agentservice.SlateEdge{},
 			},
+			// Soccer match whose best prediction and edge are the three-way
+			// moneyline Draw outcome (ADR-027).
+			{
+				GameId:         "44444444-4444-4444-4444-444444444444",
+				League:         "EPL",
+				HomeTeam:       agentservice.SlateTeam{Id: "t5", Name: "Arsenal", Abbreviation: "ARS"},
+				AwayTeam:       agentservice.SlateTeam{Id: "t6", Name: "Chelsea", Abbreviation: "CHE"},
+				ScheduledStart: "2026-07-05T19:00:00Z",
+				Status:         "SCHEDULED",
+				Prediction: &agentservice.SlatePrediction{
+					Id:                   "p2",
+					MarketType:           "MONEYLINE",
+					Selection:            "Draw",
+					PredictedProbability: 0.31,
+					PredictedAt:          "2026-07-05T12:00:00Z",
+				},
+				Edges: []agentservice.SlateEdge{
+					{Id: "e3", MarketType: "MONEYLINE", Selection: "Draw", EdgePercentage: 4.1, SportsbookKey: "pinnacle"},
+				},
+			},
 		},
 	}
 }
@@ -71,6 +91,7 @@ func TestSlateTable(t *testing.T) {
 		"TIME", "MATCHUP", "STATUS", "PREDICTION", "BEST EDGE",
 		"DAL @ PHI", "KC @ DEN", "SCHEDULED",
 		"PHI -2.5 56.0%", "+5.4% TOTAL", "—",
+		"CHE @ ARS", "Draw 31.0%", "+4.1% MONEYLINE",
 	} {
 		if !strings.Contains(res.stdout, want) {
 			t.Errorf("stdout missing %q:\n%s", want, res.stdout)
