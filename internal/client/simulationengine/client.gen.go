@@ -181,36 +181,50 @@ type SimulationRequest struct {
 	GameId       string              `json:"game_id"`
 }
 
-// SimulationResultData defines model for SimulationResultData.
+// SimulationResultData Aggregated simulation result.
+//
+// “spread_push_probabilities“ / “total_push_probabilities“ carry
+// P(margin == line) / P(total == line) for INTEGER lines only — half-point
+// lines cannot push and are omitted rather than serialized as 0.0. Cover
+// and over probabilities are unchanged: strictly-greater-than semantics.
 type SimulationResultData struct {
-	AwayWinProbability       float32            `json:"away_win_probability"`
-	DrawProbability          float32            `json:"draw_probability"`
-	HomeWinProbability       float32            `json:"home_win_probability"`
-	Id                       string             `json:"id"`
-	MeanAwayScore            float32            `json:"mean_away_score"`
-	MeanHomeScore            float32            `json:"mean_home_score"`
-	MeanMargin               float32            `json:"mean_margin"`
-	MeanTotal                float32            `json:"mean_total"`
-	Percentiles              Percentiles        `json:"percentiles"`
-	SpreadCoverProbabilities map[string]float32 `json:"spread_cover_probabilities"`
-	TotalOverProbabilities   map[string]float32 `json:"total_over_probabilities"`
+	AwayWinProbability       float32             `json:"away_win_probability"`
+	DrawProbability          float32             `json:"draw_probability"`
+	HomeWinProbability       float32             `json:"home_win_probability"`
+	Id                       string              `json:"id"`
+	MeanAwayScore            float32             `json:"mean_away_score"`
+	MeanHomeScore            float32             `json:"mean_home_score"`
+	MeanMargin               float32             `json:"mean_margin"`
+	MeanTotal                float32             `json:"mean_total"`
+	Percentiles              Percentiles         `json:"percentiles"`
+	SpreadCoverProbabilities map[string]float32  `json:"spread_cover_probabilities"`
+	SpreadPushProbabilities  *map[string]float32 `json:"spread_push_probabilities,omitempty"`
+	TotalOverProbabilities   map[string]float32  `json:"total_over_probabilities"`
+	TotalPushProbabilities   *map[string]float32 `json:"total_push_probabilities,omitempty"`
 }
 
 // SimulationRunData defines model for SimulationRunData.
 type SimulationRunData struct {
-	BatchId             *string              `json:"batch_id"`
-	Cached              *bool                `json:"cached,omitempty"`
-	CompletedAt         string               `json:"completed_at"`
-	Config              SimulationConfigOut  `json:"config"`
-	Converged           bool                 `json:"converged"`
-	DurationMs          int                  `json:"duration_ms"`
-	GameId              string               `json:"game_id"`
-	IterationsCompleted int                  `json:"iterations_completed"`
-	ParametersHash      string               `json:"parameters_hash"`
-	Result              SimulationResultData `json:"result"`
-	SimulationRunId     string               `json:"simulation_run_id"`
-	StartedAt           string               `json:"started_at"`
-	Status              string               `json:"status"`
+	BatchId             *string             `json:"batch_id"`
+	Cached              *bool               `json:"cached,omitempty"`
+	CompletedAt         string              `json:"completed_at"`
+	Config              SimulationConfigOut `json:"config"`
+	Converged           bool                `json:"converged"`
+	DurationMs          int                 `json:"duration_ms"`
+	GameId              string              `json:"game_id"`
+	IterationsCompleted int                 `json:"iterations_completed"`
+	ParametersHash      string              `json:"parameters_hash"`
+
+	// Result Aggregated simulation result.
+	//
+	// ``spread_push_probabilities`` / ``total_push_probabilities`` carry
+	// P(margin == line) / P(total == line) for INTEGER lines only — half-point
+	// lines cannot push and are omitted rather than serialized as 0.0. Cover
+	// and over probabilities are unchanged: strictly-greater-than semantics.
+	Result          SimulationResultData `json:"result"`
+	SimulationRunId string               `json:"simulation_run_id"`
+	StartedAt       string               `json:"started_at"`
+	Status          string               `json:"status"`
 }
 
 // ValidationError defines model for ValidationError.

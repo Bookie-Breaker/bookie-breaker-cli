@@ -18,6 +18,24 @@ import (
 	openapi_types "github.com/oapi-codegen/runtime/types"
 )
 
+// Defines values for PredictionDetailDataSide.
+const (
+	PredictionDetailDataSideAWAY  PredictionDetailDataSide = "AWAY"
+	PredictionDetailDataSideDRAW  PredictionDetailDataSide = "DRAW"
+	PredictionDetailDataSideHOME  PredictionDetailDataSide = "HOME"
+	PredictionDetailDataSideOVER  PredictionDetailDataSide = "OVER"
+	PredictionDetailDataSideUNDER PredictionDetailDataSide = "UNDER"
+)
+
+// Defines values for PredictionItemSide.
+const (
+	PredictionItemSideAWAY  PredictionItemSide = "AWAY"
+	PredictionItemSideDRAW  PredictionItemSide = "DRAW"
+	PredictionItemSideHOME  PredictionItemSide = "HOME"
+	PredictionItemSideOVER  PredictionItemSide = "OVER"
+	PredictionItemSideUNDER PredictionItemSide = "UNDER"
+)
+
 // Defines values for PredictionRequestMarketTypes.
 const (
 	MONEYLINE PredictionRequestMarketTypes = "MONEYLINE"
@@ -170,20 +188,26 @@ type ModelVersionDetailData struct {
 
 // PredictionDetailData defines model for PredictionDetailData.
 type PredictionDetailData struct {
-	AdjustmentMagnitude   float32            `json:"adjustment_magnitude"`
-	ConfidenceLower       *float32           `json:"confidence_lower"`
-	ConfidenceUpper       *float32           `json:"confidence_upper"`
-	CreatedAt             string             `json:"created_at"`
-	FeatureImportance     map[string]float32 `json:"feature_importance"`
-	FeatureVector         FeatureVectorData  `json:"feature_vector"`
-	GameId                string             `json:"game_id"`
-	Id                    string             `json:"id"`
-	MarketType            string             `json:"market_type"`
-	ModelVersionId        string             `json:"model_version_id"`
-	PredictedProbability  float32            `json:"predicted_probability"`
-	Selection             string             `json:"selection"`
-	SimulationProbability *float32           `json:"simulation_probability"`
+	AdjustmentMagnitude  float32            `json:"adjustment_magnitude"`
+	ConfidenceLower      *float32           `json:"confidence_lower"`
+	ConfidenceUpper      *float32           `json:"confidence_upper"`
+	CreatedAt            string             `json:"created_at"`
+	FeatureImportance    map[string]float32 `json:"feature_importance"`
+	FeatureVector        FeatureVectorData  `json:"feature_vector"`
+	GameId               string             `json:"game_id"`
+	Id                   string             `json:"id"`
+	MarketType           string             `json:"market_type"`
+	ModelVersionId       string             `json:"model_version_id"`
+	PredictedProbability float32            `json:"predicted_probability"`
+	Selection            string             `json:"selection"`
+
+	// Side Selection side (HOME, AWAY, DRAW, OVER, UNDER). Null for predictions created before Phase 6.
+	Side                  *PredictionDetailDataSide `json:"side"`
+	SimulationProbability *float32                  `json:"simulation_probability"`
 }
+
+// PredictionDetailDataSide Selection side (HOME, AWAY, DRAW, OVER, UNDER). Null for predictions created before Phase 6.
+type PredictionDetailDataSide string
 
 // PredictionGroupData defines model for PredictionGroupData.
 type PredictionGroupData struct {
@@ -210,18 +234,24 @@ type PredictionGroupData_FeaturesUsed_AdditionalProperties struct {
 
 // PredictionItem defines model for PredictionItem.
 type PredictionItem struct {
-	AdjustmentMagnitude   float32            `json:"adjustment_magnitude"`
-	ConfidenceLower       *float32           `json:"confidence_lower"`
-	ConfidenceUpper       *float32           `json:"confidence_upper"`
-	CreatedAt             string             `json:"created_at"`
-	FeatureImportance     map[string]float32 `json:"feature_importance"`
-	Id                    string             `json:"id"`
-	MarketType            string             `json:"market_type"`
-	ModelVersionId        string             `json:"model_version_id"`
-	PredictedProbability  float32            `json:"predicted_probability"`
-	Selection             string             `json:"selection"`
-	SimulationProbability *float32           `json:"simulation_probability"`
+	AdjustmentMagnitude  float32            `json:"adjustment_magnitude"`
+	ConfidenceLower      *float32           `json:"confidence_lower"`
+	ConfidenceUpper      *float32           `json:"confidence_upper"`
+	CreatedAt            string             `json:"created_at"`
+	FeatureImportance    map[string]float32 `json:"feature_importance"`
+	Id                   string             `json:"id"`
+	MarketType           string             `json:"market_type"`
+	ModelVersionId       string             `json:"model_version_id"`
+	PredictedProbability float32            `json:"predicted_probability"`
+	Selection            string             `json:"selection"`
+
+	// Side Selection side (HOME, AWAY, DRAW, OVER, UNDER). Null for predictions created before Phase 6.
+	Side                  *PredictionItemSide `json:"side"`
+	SimulationProbability *float32            `json:"simulation_probability"`
 }
+
+// PredictionItemSide Selection side (HOME, AWAY, DRAW, OVER, UNDER). Null for predictions created before Phase 6.
+type PredictionItemSide string
 
 // PredictionRequest defines model for PredictionRequest.
 type PredictionRequest struct {

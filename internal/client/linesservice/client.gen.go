@@ -46,6 +46,7 @@ const (
 // Defines values for LineSnapshotSide.
 const (
 	AWAY  LineSnapshotSide = "AWAY"
+	DRAW  LineSnapshotSide = "DRAW"
 	HOME  LineSnapshotSide = "HOME"
 	NO    LineSnapshotSide = "NO"
 	OVER  LineSnapshotSide = "OVER"
@@ -273,7 +274,7 @@ type GetGameLinesParams struct {
 	// Sportsbook Filter by sportsbook key (e.g. draftkings, pinnacle).
 	Sportsbook *string `form:"sportsbook,omitempty" json:"sportsbook,omitempty"`
 
-	// Side Filter by selection side (e.g. home, away, over, under).
+	// Side Filter by selection side (e.g. home, away, draw, over, under).
 	Side *string `form:"side,omitempty" json:"side,omitempty"`
 
 	// Limit Maximum number of items to return per page.
