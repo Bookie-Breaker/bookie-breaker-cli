@@ -78,6 +78,7 @@ const (
 // Defines values for PlaceBetRequestSide.
 const (
 	AWAY  PlaceBetRequestSide = "AWAY"
+	DRAW  PlaceBetRequestSide = "DRAW"
 	HOME  PlaceBetRequestSide = "HOME"
 	OVER  PlaceBetRequestSide = "OVER"
 	UNDER PlaceBetRequestSide = "UNDER"
@@ -92,12 +93,16 @@ const (
 
 // Defines values for ListBetsApiV1EmulatorBetsGetParamsLeague.
 const (
+	ListBetsApiV1EmulatorBetsGetParamsLeagueEPL     ListBetsApiV1EmulatorBetsGetParamsLeague = "EPL"
+	ListBetsApiV1EmulatorBetsGetParamsLeagueFIFAWC  ListBetsApiV1EmulatorBetsGetParamsLeague = "FIFA_WC"
 	ListBetsApiV1EmulatorBetsGetParamsLeagueMLB     ListBetsApiV1EmulatorBetsGetParamsLeague = "MLB"
 	ListBetsApiV1EmulatorBetsGetParamsLeagueNBA     ListBetsApiV1EmulatorBetsGetParamsLeague = "NBA"
 	ListBetsApiV1EmulatorBetsGetParamsLeagueNCAABB  ListBetsApiV1EmulatorBetsGetParamsLeague = "NCAA_BB"
 	ListBetsApiV1EmulatorBetsGetParamsLeagueNCAABSB ListBetsApiV1EmulatorBetsGetParamsLeague = "NCAA_BSB"
 	ListBetsApiV1EmulatorBetsGetParamsLeagueNCAAFB  ListBetsApiV1EmulatorBetsGetParamsLeague = "NCAA_FB"
+	ListBetsApiV1EmulatorBetsGetParamsLeagueNCAAHKY ListBetsApiV1EmulatorBetsGetParamsLeague = "NCAA_HKY"
 	ListBetsApiV1EmulatorBetsGetParamsLeagueNFL     ListBetsApiV1EmulatorBetsGetParamsLeague = "NFL"
+	ListBetsApiV1EmulatorBetsGetParamsLeagueNHL     ListBetsApiV1EmulatorBetsGetParamsLeague = "NHL"
 )
 
 // Defines values for ListBetsApiV1EmulatorBetsGetParamsMarketType.
@@ -125,12 +130,16 @@ const (
 
 // Defines values for GetPerformanceApiV1EmulatorPerformanceGetParamsLeague.
 const (
+	GetPerformanceApiV1EmulatorPerformanceGetParamsLeagueEPL     GetPerformanceApiV1EmulatorPerformanceGetParamsLeague = "EPL"
+	GetPerformanceApiV1EmulatorPerformanceGetParamsLeagueFIFAWC  GetPerformanceApiV1EmulatorPerformanceGetParamsLeague = "FIFA_WC"
 	GetPerformanceApiV1EmulatorPerformanceGetParamsLeagueMLB     GetPerformanceApiV1EmulatorPerformanceGetParamsLeague = "MLB"
 	GetPerformanceApiV1EmulatorPerformanceGetParamsLeagueNBA     GetPerformanceApiV1EmulatorPerformanceGetParamsLeague = "NBA"
 	GetPerformanceApiV1EmulatorPerformanceGetParamsLeagueNCAABB  GetPerformanceApiV1EmulatorPerformanceGetParamsLeague = "NCAA_BB"
 	GetPerformanceApiV1EmulatorPerformanceGetParamsLeagueNCAABSB GetPerformanceApiV1EmulatorPerformanceGetParamsLeague = "NCAA_BSB"
 	GetPerformanceApiV1EmulatorPerformanceGetParamsLeagueNCAAFB  GetPerformanceApiV1EmulatorPerformanceGetParamsLeague = "NCAA_FB"
+	GetPerformanceApiV1EmulatorPerformanceGetParamsLeagueNCAAHKY GetPerformanceApiV1EmulatorPerformanceGetParamsLeague = "NCAA_HKY"
 	GetPerformanceApiV1EmulatorPerformanceGetParamsLeagueNFL     GetPerformanceApiV1EmulatorPerformanceGetParamsLeague = "NFL"
+	GetPerformanceApiV1EmulatorPerformanceGetParamsLeagueNHL     GetPerformanceApiV1EmulatorPerformanceGetParamsLeague = "NHL"
 )
 
 // Defines values for GetPerformanceApiV1EmulatorPerformanceGetParamsMarketType.
@@ -158,12 +167,16 @@ const (
 
 // Defines values for GetCalibrationApiV1EmulatorPerformanceCalibrationGetParamsLeague.
 const (
+	EPL     GetCalibrationApiV1EmulatorPerformanceCalibrationGetParamsLeague = "EPL"
+	FIFAWC  GetCalibrationApiV1EmulatorPerformanceCalibrationGetParamsLeague = "FIFA_WC"
 	MLB     GetCalibrationApiV1EmulatorPerformanceCalibrationGetParamsLeague = "MLB"
 	NBA     GetCalibrationApiV1EmulatorPerformanceCalibrationGetParamsLeague = "NBA"
 	NCAABB  GetCalibrationApiV1EmulatorPerformanceCalibrationGetParamsLeague = "NCAA_BB"
 	NCAABSB GetCalibrationApiV1EmulatorPerformanceCalibrationGetParamsLeague = "NCAA_BSB"
 	NCAAFB  GetCalibrationApiV1EmulatorPerformanceCalibrationGetParamsLeague = "NCAA_FB"
+	NCAAHKY GetCalibrationApiV1EmulatorPerformanceCalibrationGetParamsLeague = "NCAA_HKY"
 	NFL     GetCalibrationApiV1EmulatorPerformanceCalibrationGetParamsLeague = "NFL"
+	NHL     GetCalibrationApiV1EmulatorPerformanceCalibrationGetParamsLeague = "NHL"
 )
 
 // Defines values for GetCalibrationApiV1EmulatorPerformanceCalibrationGetParamsMarketType.
