@@ -105,6 +105,62 @@ func TestBetPlace(t *testing.T) {
 	}
 }
 
+// drawBetFixture is a three-way moneyline DRAW bet (ADR-027).
+func drawBetFixture() bookieemulator.BetData {
+	b := placedBetFixture()
+	b.Id = uuid.MustParse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")
+	b.GameExternalId = "CHE@ARS-2026-07-05"
+	b.MarketType = "MONEYLINE"
+	b.Selection = "Draw"
+	b.Side = "DRAW"
+	b.LineValue = nil
+	b.OddsAmerican = 240
+	b.OddsDecimal = 3.4
+	b.PredictedProbability = 0.31
+	b.EdgePercentage = 1.6
+	return b
+}
+
+func TestBetPlaceDrawSide(t *testing.T) {
+	var gotBody map[string]any
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		raw, _ := io.ReadAll(r.Body)
+		if err := json.Unmarshal(raw, &gotBody); err != nil {
+			t.Errorf("request body not JSON: %v", err)
+		}
+		writeEnvelope(t, w, http.StatusCreated, drawBetFixture())
+	}))
+	defer srv.Close()
+
+	res := runBB(t, map[string]string{"BOOKIE_EMULATOR_URL": srv.URL},
+		"bet", "place",
+		"--game", testGameID,
+		"--market", "moneyline",
+		"--selection", "Draw",
+		"--side", "draw",
+		"--stake", "1.5",
+		"--prob", "0.31",
+		"--edge", "1.6",
+	)
+	if res.code != api.ExitOK {
+		t.Fatalf("exit code = %d, stderr: %s", res.code, res.stderr)
+	}
+
+	// The lowercased flag is upper-cased into the DRAW enum on the wire.
+	if got := gotBody["side"]; got != "DRAW" {
+		t.Errorf("body[side] = %v, want DRAW", got)
+	}
+	if got := gotBody["market_type"]; got != "MONEYLINE" {
+		t.Errorf("body[market_type] = %v, want MONEYLINE", got)
+	}
+
+	for _, want := range []string{"Bet placed", "CHE@ARS-2026-07-05", "Draw", "DRAW", "MONEYLINE", "+240"} {
+		if !strings.Contains(res.stdout, want) {
+			t.Errorf("stdout missing %q:\n%s", want, res.stdout)
+		}
+	}
+}
+
 func TestBetPlaceExplicitIdempotencyKeyAndJSON(t *testing.T) {
 	const key = "99999999-9999-9999-9999-999999999999"
 	var gotIdempotencyKey string
@@ -146,7 +202,7 @@ func TestBetList(t *testing.T) {
 	graded.ProfitLoss = ptr(float32(1.36))
 	graded.Clv = ptr(float32(0.8))
 	graded.GradedAt = ptr(time.Date(2026, 7, 5, 4, 0, 0, 0, time.UTC))
-	bets := []bookieemulator.BetData{placedBetFixture(), graded}
+	bets := []bookieemulator.BetData{placedBetFixture(), graded, drawBetFixture()}
 
 	var gotQuery map[string][]string
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -188,6 +244,7 @@ func TestBetList(t *testing.T) {
 		"PLACED", "GAME", "MARKET", "SELECTION", "ODDS", "STAKE", "RESULT", "P&L", "CLV",
 		"DAL@PHI-2026-07-04", "SPREAD", "PHI -2.5", "-110", "1.50",
 		"PENDING", "WIN", "+1.36", "+0.80", "—",
+		"CHE@ARS-2026-07-05", "MONEYLINE", "Draw", "+240",
 	} {
 		if !strings.Contains(res.stdout, want) {
 			t.Errorf("stdout missing %q:\n%s", want, res.stdout)

@@ -52,6 +52,27 @@ func edgesFixture() []agentservice.EdgeListItem {
 			HomeTeam:             ptr("DEN"),
 			AwayTeam:             ptr("KC"),
 		},
+		// Three-way soccer moneyline edge on the Draw outcome (ADR-027).
+		{
+			Id:                   "edge-draw",
+			GameId:               "44444444-4444-4444-4444-444444444444",
+			League:               "EPL",
+			ScheduledStart:       "2026-07-05T19:00:00Z",
+			MarketType:           "MONEYLINE",
+			Selection:            "Draw",
+			PredictedProbability: 0.31,
+			ImpliedProbability:   0.27,
+			EdgePercentage:       4.1,
+			ExpectedValue:        0.09,
+			OddsAmerican:         240,
+			SportsbookKey:        "pinnacle",
+			KellyFraction:        0.03,
+			RecommendedStake:     1.0,
+			DetectedAt:           "2026-07-05T12:00:00Z",
+			ExpiresAt:            "2026-07-05T19:00:00Z",
+			HomeTeam:             ptr("ARS"),
+			AwayTeam:             ptr("CHE"),
+		},
 	}
 }
 
@@ -89,14 +110,16 @@ func TestEdgesTable(t *testing.T) {
 		"GAME", "MARKET", "SELECTION", "ODDS", "MODEL %", "IMPLIED %", "EDGE", "BOOK", "DETECTED",
 		"KC @ DEN", "DAL @ PHI", "DEN -3.5", "OVER 47.5",
 		"+102", "-110", "58.0%", "51.0%", "+7.0%", "+2.6%", "draftkings", "fanduel",
+		"CHE @ ARS", "MONEYLINE", "Draw", "+240", "+4.1%", "pinnacle",
 	} {
 		if !strings.Contains(res.stdout, want) {
 			t.Errorf("stdout missing %q:\n%s", want, res.stdout)
 		}
 	}
 
-	// Sorted by edge descending: the +7.0% row comes first.
-	if strings.Index(res.stdout, "+7.0%") > strings.Index(res.stdout, "+2.6%") {
+	// Sorted by edge descending: +7.0%, then the +4.1% Draw edge, then +2.6%.
+	if strings.Index(res.stdout, "+7.0%") > strings.Index(res.stdout, "+4.1%") ||
+		strings.Index(res.stdout, "+4.1%") > strings.Index(res.stdout, "+2.6%") {
 		t.Errorf("edges not sorted by edge desc:\n%s", res.stdout)
 	}
 }
@@ -112,9 +135,10 @@ func TestEdgesJSON(t *testing.T) {
 		t.Fatalf("exit code = %d, stderr: %s", res.code, res.stderr)
 	}
 
-	// JSON output is the unwrapped data array, sorted by edge descending.
-	want := edgesFixture()
-	want[0], want[1] = want[1], want[0]
+	// JSON output is the unwrapped data array, sorted by edge descending:
+	// edge-big (+7.0), edge-draw (+4.1), edge-small (+2.6).
+	fixture := edgesFixture()
+	want := []agentservice.EdgeListItem{fixture[1], fixture[2], fixture[0]}
 	mustJSONEqual(t, res.stdout, want)
 }
 

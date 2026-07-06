@@ -44,6 +44,21 @@ func lineSnapshotsFixture() []linesservice.LineSnapshot {
 			ImpliedProbability: 0.4255,
 			Timestamp:          ts,
 		},
+		// Three-way soccer moneyline outcome (ADR-027): side DRAW.
+		{
+			Id:                 uuid.MustParse("99999999-9999-9999-9999-999999999999"),
+			GameId:             testGameID,
+			SportsbookId:       uuid.MustParse("55555555-5555-5555-5555-555555555555"),
+			SportsbookKey:      "pinnacle",
+			MarketType:         "MONEYLINE",
+			Selection:          "Draw",
+			Side:               ptr(linesservice.DRAW),
+			LineValue:          nil,
+			OddsAmerican:       240,
+			OddsDecimal:        3.4,
+			ImpliedProbability: 0.294,
+			Timestamp:          ts,
+		},
 	}
 }
 
@@ -78,6 +93,7 @@ func TestLinesTable(t *testing.T) {
 		"BOOK", "MARKET", "SELECTION", "LINE", "ODDS", "IMPLIED %", "UPDATED",
 		"draftkings", "SPREAD", "PHI -2.5", "-2.5", "-110", "52.4%",
 		"pinnacle", "MONEYLINE", "+135", "42.6%", "—",
+		"Draw", "+240", "29.4%",
 	} {
 		if !strings.Contains(res.stdout, want) {
 			t.Errorf("stdout missing %q:\n%s", want, res.stdout)
