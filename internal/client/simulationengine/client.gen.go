@@ -80,6 +80,28 @@ type BatchResultSummary struct {
 	MeanTotal          float32 `json:"mean_total"`
 }
 
+// CorrelationsData Same-game parlay correlation artifact for one simulation run (Phase 7 Wave 1).
+//
+// “legs“ uses the canonical leg vocabulary (“MONEYLINE:HOME“,
+// “SPREAD:HOME:-1.5“, “TOTAL:OVER:2.5“, ...; lines rendered with %g).
+// “matrix“ is the pairwise phi/Pearson correlation matrix aligned with
+// “legs“ (unit diagonal; zero-variance legs correlate 0.0 with everything).
+// “joint_probability“ is present only when specific legs were requested:
+// the empirical Monte Carlo probability that ALL requested legs hit in the
+// same iteration (pushes count as misses). “joint_goal_grid“ is the
+// analytic joint score PMF (rows = home score) for Poisson-grid sports
+// (soccer regulation, hockey pre-OT regulation); null elsewhere.
+type CorrelationsData struct {
+	GameId           string             `json:"game_id"`
+	Iterations       int                `json:"iterations"`
+	JointGoalGrid    *[][]float32       `json:"joint_goal_grid"`
+	JointProbability *float32           `json:"joint_probability"`
+	Legs             []string           `json:"legs"`
+	Marginals        map[string]float32 `json:"marginals"`
+	Matrix           [][]float32        `json:"matrix"`
+	SimulationRunId  string             `json:"simulation_run_id"`
+}
+
 // Distribution defines model for Distribution.
 type Distribution struct {
 	Max    int                `json:"max"`
@@ -102,6 +124,23 @@ type DistributionsData struct {
 type EnvelopeBatchData struct {
 	Data BatchData `json:"data"`
 	Meta Meta      `json:"meta"`
+}
+
+// EnvelopeCorrelationsData defines model for Envelope_CorrelationsData_.
+type EnvelopeCorrelationsData struct {
+	// Data Same-game parlay correlation artifact for one simulation run (Phase 7 Wave 1).
+	//
+	// ``legs`` uses the canonical leg vocabulary (``MONEYLINE:HOME``,
+	// ``SPREAD:HOME:-1.5``, ``TOTAL:OVER:2.5``, ...; lines rendered with %g).
+	// ``matrix`` is the pairwise phi/Pearson correlation matrix aligned with
+	// ``legs`` (unit diagonal; zero-variance legs correlate 0.0 with everything).
+	// ``joint_probability`` is present only when specific legs were requested:
+	// the empirical Monte Carlo probability that ALL requested legs hit in the
+	// same iteration (pushes count as misses). ``joint_goal_grid`` is the
+	// analytic joint score PMF (rows = home score) for Poisson-grid sports
+	// (soccer regulation, hockey pre-OT regulation); null elsewhere.
+	Data CorrelationsData `json:"data"`
+	Meta Meta             `json:"meta"`
 }
 
 // EnvelopeDistributionsData defines model for Envelope_DistributionsData_.
@@ -260,6 +299,12 @@ type GetLatestSimulationApiV1SimGamesGameIdLatestGetParams struct {
 type CreateSimulationApiV1SimSimulationsPostParams struct {
 	// XIdempotencyKey UUID for idempotent submission (replayed for 24 hours).
 	XIdempotencyKey *string `json:"x-idempotency-key,omitempty"`
+}
+
+// GetSimulationCorrelationsApiV1SimSimulationsSimulationIdCorrelationsGetParams defines parameters for GetSimulationCorrelationsApiV1SimSimulationsSimulationIdCorrelationsGet.
+type GetSimulationCorrelationsApiV1SimSimulationsSimulationIdCorrelationsGetParams struct {
+	// Legs Comma-separated canonical leg keys (e.g. 'MONEYLINE:HOME,TOTAL:OVER:2.5'). When given, the response is restricted to those legs and includes their empirical joint probability. Omit for the full default artifact.
+	Legs *string `form:"legs,omitempty" json:"legs,omitempty"`
 }
 
 // GetSimulationDistributionsApiV1SimSimulationsSimulationIdDistributionsGetParams defines parameters for GetSimulationDistributionsApiV1SimSimulationsSimulationIdDistributionsGet.
@@ -431,6 +476,9 @@ type ClientInterface interface {
 	// GetSimulationApiV1SimSimulationsSimulationIdGet request
 	GetSimulationApiV1SimSimulationsSimulationIdGet(ctx context.Context, simulationId string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetSimulationCorrelationsApiV1SimSimulationsSimulationIdCorrelationsGet request
+	GetSimulationCorrelationsApiV1SimSimulationsSimulationIdCorrelationsGet(ctx context.Context, simulationId string, params *GetSimulationCorrelationsApiV1SimSimulationsSimulationIdCorrelationsGetParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetSimulationDistributionsApiV1SimSimulationsSimulationIdDistributionsGet request
 	GetSimulationDistributionsApiV1SimSimulationsSimulationIdDistributionsGet(ctx context.Context, simulationId string, params *GetSimulationDistributionsApiV1SimSimulationsSimulationIdDistributionsGetParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
@@ -509,6 +557,18 @@ func (c *Client) CreateBatchApiV1SimSimulationsBatchPost(ctx context.Context, bo
 
 func (c *Client) GetSimulationApiV1SimSimulationsSimulationIdGet(ctx context.Context, simulationId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetSimulationApiV1SimSimulationsSimulationIdGetRequest(c.Server, simulationId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetSimulationCorrelationsApiV1SimSimulationsSimulationIdCorrelationsGet(ctx context.Context, simulationId string, params *GetSimulationCorrelationsApiV1SimSimulationsSimulationIdCorrelationsGetParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetSimulationCorrelationsApiV1SimSimulationsSimulationIdCorrelationsGetRequest(c.Server, simulationId, params)
 	if err != nil {
 		return nil, err
 	}
@@ -759,6 +819,62 @@ func NewGetSimulationApiV1SimSimulationsSimulationIdGetRequest(server string, si
 	return req, nil
 }
 
+// NewGetSimulationCorrelationsApiV1SimSimulationsSimulationIdCorrelationsGetRequest generates requests for GetSimulationCorrelationsApiV1SimSimulationsSimulationIdCorrelationsGet
+func NewGetSimulationCorrelationsApiV1SimSimulationsSimulationIdCorrelationsGetRequest(server string, simulationId string, params *GetSimulationCorrelationsApiV1SimSimulationsSimulationIdCorrelationsGetParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "simulation_id", runtime.ParamLocationPath, simulationId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/sim/simulations/%s/correlations", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.Legs != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "legs", runtime.ParamLocationQuery, *params.Legs); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewGetSimulationDistributionsApiV1SimSimulationsSimulationIdDistributionsGetRequest generates requests for GetSimulationDistributionsApiV1SimSimulationsSimulationIdDistributionsGet
 func NewGetSimulationDistributionsApiV1SimSimulationsSimulationIdDistributionsGetRequest(server string, simulationId string, params *GetSimulationDistributionsApiV1SimSimulationsSimulationIdDistributionsGetParams) (*http.Request, error) {
 	var err error
@@ -876,6 +992,9 @@ type ClientWithResponsesInterface interface {
 
 	// GetSimulationApiV1SimSimulationsSimulationIdGetWithResponse request
 	GetSimulationApiV1SimSimulationsSimulationIdGetWithResponse(ctx context.Context, simulationId string, reqEditors ...RequestEditorFn) (*GetSimulationApiV1SimSimulationsSimulationIdGetResponse, error)
+
+	// GetSimulationCorrelationsApiV1SimSimulationsSimulationIdCorrelationsGetWithResponse request
+	GetSimulationCorrelationsApiV1SimSimulationsSimulationIdCorrelationsGetWithResponse(ctx context.Context, simulationId string, params *GetSimulationCorrelationsApiV1SimSimulationsSimulationIdCorrelationsGetParams, reqEditors ...RequestEditorFn) (*GetSimulationCorrelationsApiV1SimSimulationsSimulationIdCorrelationsGetResponse, error)
 
 	// GetSimulationDistributionsApiV1SimSimulationsSimulationIdDistributionsGetWithResponse request
 	GetSimulationDistributionsApiV1SimSimulationsSimulationIdDistributionsGetWithResponse(ctx context.Context, simulationId string, params *GetSimulationDistributionsApiV1SimSimulationsSimulationIdDistributionsGetParams, reqEditors ...RequestEditorFn) (*GetSimulationDistributionsApiV1SimSimulationsSimulationIdDistributionsGetResponse, error)
@@ -995,6 +1114,29 @@ func (r GetSimulationApiV1SimSimulationsSimulationIdGetResponse) StatusCode() in
 	return 0
 }
 
+type GetSimulationCorrelationsApiV1SimSimulationsSimulationIdCorrelationsGetResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *EnvelopeCorrelationsData
+	JSON422      *HTTPValidationError
+}
+
+// Status returns HTTPResponse.Status
+func (r GetSimulationCorrelationsApiV1SimSimulationsSimulationIdCorrelationsGetResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetSimulationCorrelationsApiV1SimSimulationsSimulationIdCorrelationsGetResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type GetSimulationDistributionsApiV1SimSimulationsSimulationIdDistributionsGetResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -1077,6 +1219,15 @@ func (c *ClientWithResponses) GetSimulationApiV1SimSimulationsSimulationIdGetWit
 		return nil, err
 	}
 	return ParseGetSimulationApiV1SimSimulationsSimulationIdGetResponse(rsp)
+}
+
+// GetSimulationCorrelationsApiV1SimSimulationsSimulationIdCorrelationsGetWithResponse request returning *GetSimulationCorrelationsApiV1SimSimulationsSimulationIdCorrelationsGetResponse
+func (c *ClientWithResponses) GetSimulationCorrelationsApiV1SimSimulationsSimulationIdCorrelationsGetWithResponse(ctx context.Context, simulationId string, params *GetSimulationCorrelationsApiV1SimSimulationsSimulationIdCorrelationsGetParams, reqEditors ...RequestEditorFn) (*GetSimulationCorrelationsApiV1SimSimulationsSimulationIdCorrelationsGetResponse, error) {
+	rsp, err := c.GetSimulationCorrelationsApiV1SimSimulationsSimulationIdCorrelationsGet(ctx, simulationId, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetSimulationCorrelationsApiV1SimSimulationsSimulationIdCorrelationsGetResponse(rsp)
 }
 
 // GetSimulationDistributionsApiV1SimSimulationsSimulationIdDistributionsGetWithResponse request returning *GetSimulationDistributionsApiV1SimSimulationsSimulationIdDistributionsGetResponse
@@ -1229,6 +1380,39 @@ func ParseGetSimulationApiV1SimSimulationsSimulationIdGetResponse(rsp *http.Resp
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest EnvelopeSimulationRunData
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest HTTPValidationError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetSimulationCorrelationsApiV1SimSimulationsSimulationIdCorrelationsGetResponse parses an HTTP response from a GetSimulationCorrelationsApiV1SimSimulationsSimulationIdCorrelationsGetWithResponse call
+func ParseGetSimulationCorrelationsApiV1SimSimulationsSimulationIdCorrelationsGetResponse(rsp *http.Response) (*GetSimulationCorrelationsApiV1SimSimulationsSimulationIdCorrelationsGetResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetSimulationCorrelationsApiV1SimSimulationsSimulationIdCorrelationsGetResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest EnvelopeCorrelationsData
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

@@ -45,6 +45,7 @@ const (
 
 // Defines values for BreakdownDataGroupBy.
 const (
+	BreakdownDataGroupByBetClass   BreakdownDataGroupBy = "bet_class"
 	BreakdownDataGroupByLeague     BreakdownDataGroupBy = "league"
 	BreakdownDataGroupByMarketType BreakdownDataGroupBy = "market_type"
 	BreakdownDataGroupByMonth      BreakdownDataGroupBy = "month"
@@ -60,6 +61,43 @@ const (
 	GradeDataResultWIN     GradeDataResult = "WIN"
 )
 
+// Defines values for ParlayDetailDataResult.
+const (
+	ParlayDetailDataResultLOSS    ParlayDetailDataResult = "LOSS"
+	ParlayDetailDataResultPENDING ParlayDetailDataResult = "PENDING"
+	ParlayDetailDataResultPUSH    ParlayDetailDataResult = "PUSH"
+	ParlayDetailDataResultVOID    ParlayDetailDataResult = "VOID"
+	ParlayDetailDataResultWIN     ParlayDetailDataResult = "WIN"
+)
+
+// Defines values for ParlayLegDataLegStatus.
+const (
+	ParlayLegDataLegStatusLOSS    ParlayLegDataLegStatus = "LOSS"
+	ParlayLegDataLegStatusPENDING ParlayLegDataLegStatus = "PENDING"
+	ParlayLegDataLegStatusPUSH    ParlayLegDataLegStatus = "PUSH"
+	ParlayLegDataLegStatusVOID    ParlayLegDataLegStatus = "VOID"
+	ParlayLegDataLegStatusWIN     ParlayLegDataLegStatus = "WIN"
+)
+
+// Defines values for ParlayLegRequestMarketType.
+const (
+	ParlayLegRequestMarketTypeGAMEPROP   ParlayLegRequestMarketType = "GAME_PROP"
+	ParlayLegRequestMarketTypeMONEYLINE  ParlayLegRequestMarketType = "MONEYLINE"
+	ParlayLegRequestMarketTypePLAYERPROP ParlayLegRequestMarketType = "PLAYER_PROP"
+	ParlayLegRequestMarketTypeSPREAD     ParlayLegRequestMarketType = "SPREAD"
+	ParlayLegRequestMarketTypeTEAMPROP   ParlayLegRequestMarketType = "TEAM_PROP"
+	ParlayLegRequestMarketTypeTOTAL      ParlayLegRequestMarketType = "TOTAL"
+)
+
+// Defines values for ParlayLegRequestSide.
+const (
+	ParlayLegRequestSideAWAY  ParlayLegRequestSide = "AWAY"
+	ParlayLegRequestSideDRAW  ParlayLegRequestSide = "DRAW"
+	ParlayLegRequestSideHOME  ParlayLegRequestSide = "HOME"
+	ParlayLegRequestSideOVER  ParlayLegRequestSide = "OVER"
+	ParlayLegRequestSideUNDER ParlayLegRequestSide = "UNDER"
+)
+
 // Defines values for PeriodDataWindow.
 const (
 	PeriodDataWindowAllTime PeriodDataWindow = "all_time"
@@ -70,18 +108,29 @@ const (
 
 // Defines values for PlaceBetRequestMarketType.
 const (
-	PlaceBetRequestMarketTypeMONEYLINE PlaceBetRequestMarketType = "MONEYLINE"
-	PlaceBetRequestMarketTypeSPREAD    PlaceBetRequestMarketType = "SPREAD"
-	PlaceBetRequestMarketTypeTOTAL     PlaceBetRequestMarketType = "TOTAL"
+	PlaceBetRequestMarketTypeGAMEPROP   PlaceBetRequestMarketType = "GAME_PROP"
+	PlaceBetRequestMarketTypeMONEYLINE  PlaceBetRequestMarketType = "MONEYLINE"
+	PlaceBetRequestMarketTypePLAYERPROP PlaceBetRequestMarketType = "PLAYER_PROP"
+	PlaceBetRequestMarketTypeSPREAD     PlaceBetRequestMarketType = "SPREAD"
+	PlaceBetRequestMarketTypeTEAMPROP   PlaceBetRequestMarketType = "TEAM_PROP"
+	PlaceBetRequestMarketTypeTOTAL      PlaceBetRequestMarketType = "TOTAL"
+)
+
+// Defines values for PlaceBetRequestPropType.
+const (
+	OVERUNDER PlaceBetRequestPropType = "OVER_UNDER"
+	YESNO     PlaceBetRequestPropType = "YES_NO"
 )
 
 // Defines values for PlaceBetRequestSide.
 const (
-	AWAY  PlaceBetRequestSide = "AWAY"
-	DRAW  PlaceBetRequestSide = "DRAW"
-	HOME  PlaceBetRequestSide = "HOME"
-	OVER  PlaceBetRequestSide = "OVER"
-	UNDER PlaceBetRequestSide = "UNDER"
+	PlaceBetRequestSideAWAY  PlaceBetRequestSide = "AWAY"
+	PlaceBetRequestSideDRAW  PlaceBetRequestSide = "DRAW"
+	PlaceBetRequestSideHOME  PlaceBetRequestSide = "HOME"
+	PlaceBetRequestSideNO    PlaceBetRequestSide = "NO"
+	PlaceBetRequestSideOVER  PlaceBetRequestSide = "OVER"
+	PlaceBetRequestSideUNDER PlaceBetRequestSide = "UNDER"
+	PlaceBetRequestSideYES   PlaceBetRequestSide = "YES"
 )
 
 // Defines values for GetBankrollHistoryApiV1EmulatorBankrollHistoryGetParamsInterval.
@@ -107,9 +156,12 @@ const (
 
 // Defines values for ListBetsApiV1EmulatorBetsGetParamsMarketType.
 const (
-	ListBetsApiV1EmulatorBetsGetParamsMarketTypeMONEYLINE ListBetsApiV1EmulatorBetsGetParamsMarketType = "MONEYLINE"
-	ListBetsApiV1EmulatorBetsGetParamsMarketTypeSPREAD    ListBetsApiV1EmulatorBetsGetParamsMarketType = "SPREAD"
-	ListBetsApiV1EmulatorBetsGetParamsMarketTypeTOTAL     ListBetsApiV1EmulatorBetsGetParamsMarketType = "TOTAL"
+	ListBetsApiV1EmulatorBetsGetParamsMarketTypeGAMEPROP   ListBetsApiV1EmulatorBetsGetParamsMarketType = "GAME_PROP"
+	ListBetsApiV1EmulatorBetsGetParamsMarketTypeMONEYLINE  ListBetsApiV1EmulatorBetsGetParamsMarketType = "MONEYLINE"
+	ListBetsApiV1EmulatorBetsGetParamsMarketTypePLAYERPROP ListBetsApiV1EmulatorBetsGetParamsMarketType = "PLAYER_PROP"
+	ListBetsApiV1EmulatorBetsGetParamsMarketTypeSPREAD     ListBetsApiV1EmulatorBetsGetParamsMarketType = "SPREAD"
+	ListBetsApiV1EmulatorBetsGetParamsMarketTypeTEAMPROP   ListBetsApiV1EmulatorBetsGetParamsMarketType = "TEAM_PROP"
+	ListBetsApiV1EmulatorBetsGetParamsMarketTypeTOTAL      ListBetsApiV1EmulatorBetsGetParamsMarketType = "TOTAL"
 )
 
 // Defines values for ListBetsApiV1EmulatorBetsGetParamsResult.
@@ -144,9 +196,12 @@ const (
 
 // Defines values for GetPerformanceApiV1EmulatorPerformanceGetParamsMarketType.
 const (
-	GetPerformanceApiV1EmulatorPerformanceGetParamsMarketTypeMONEYLINE GetPerformanceApiV1EmulatorPerformanceGetParamsMarketType = "MONEYLINE"
-	GetPerformanceApiV1EmulatorPerformanceGetParamsMarketTypeSPREAD    GetPerformanceApiV1EmulatorPerformanceGetParamsMarketType = "SPREAD"
-	GetPerformanceApiV1EmulatorPerformanceGetParamsMarketTypeTOTAL     GetPerformanceApiV1EmulatorPerformanceGetParamsMarketType = "TOTAL"
+	GetPerformanceApiV1EmulatorPerformanceGetParamsMarketTypeGAMEPROP   GetPerformanceApiV1EmulatorPerformanceGetParamsMarketType = "GAME_PROP"
+	GetPerformanceApiV1EmulatorPerformanceGetParamsMarketTypeMONEYLINE  GetPerformanceApiV1EmulatorPerformanceGetParamsMarketType = "MONEYLINE"
+	GetPerformanceApiV1EmulatorPerformanceGetParamsMarketTypePLAYERPROP GetPerformanceApiV1EmulatorPerformanceGetParamsMarketType = "PLAYER_PROP"
+	GetPerformanceApiV1EmulatorPerformanceGetParamsMarketTypeSPREAD     GetPerformanceApiV1EmulatorPerformanceGetParamsMarketType = "SPREAD"
+	GetPerformanceApiV1EmulatorPerformanceGetParamsMarketTypeTEAMPROP   GetPerformanceApiV1EmulatorPerformanceGetParamsMarketType = "TEAM_PROP"
+	GetPerformanceApiV1EmulatorPerformanceGetParamsMarketTypeTOTAL      GetPerformanceApiV1EmulatorPerformanceGetParamsMarketType = "TOTAL"
 )
 
 // Defines values for GetPerformanceApiV1EmulatorPerformanceGetParamsWindow.
@@ -159,6 +214,7 @@ const (
 
 // Defines values for GetBreakdownApiV1EmulatorPerformanceBreakdownGetParamsGroupBy.
 const (
+	GetBreakdownApiV1EmulatorPerformanceBreakdownGetParamsGroupByBetClass   GetBreakdownApiV1EmulatorPerformanceBreakdownGetParamsGroupBy = "bet_class"
 	GetBreakdownApiV1EmulatorPerformanceBreakdownGetParamsGroupByLeague     GetBreakdownApiV1EmulatorPerformanceBreakdownGetParamsGroupBy = "league"
 	GetBreakdownApiV1EmulatorPerformanceBreakdownGetParamsGroupByMarketType GetBreakdownApiV1EmulatorPerformanceBreakdownGetParamsGroupBy = "market_type"
 	GetBreakdownApiV1EmulatorPerformanceBreakdownGetParamsGroupByMonth      GetBreakdownApiV1EmulatorPerformanceBreakdownGetParamsGroupBy = "month"
@@ -181,9 +237,12 @@ const (
 
 // Defines values for GetCalibrationApiV1EmulatorPerformanceCalibrationGetParamsMarketType.
 const (
-	GetCalibrationApiV1EmulatorPerformanceCalibrationGetParamsMarketTypeMONEYLINE GetCalibrationApiV1EmulatorPerformanceCalibrationGetParamsMarketType = "MONEYLINE"
-	GetCalibrationApiV1EmulatorPerformanceCalibrationGetParamsMarketTypeSPREAD    GetCalibrationApiV1EmulatorPerformanceCalibrationGetParamsMarketType = "SPREAD"
-	GetCalibrationApiV1EmulatorPerformanceCalibrationGetParamsMarketTypeTOTAL     GetCalibrationApiV1EmulatorPerformanceCalibrationGetParamsMarketType = "TOTAL"
+	GAMEPROP   GetCalibrationApiV1EmulatorPerformanceCalibrationGetParamsMarketType = "GAME_PROP"
+	MONEYLINE  GetCalibrationApiV1EmulatorPerformanceCalibrationGetParamsMarketType = "MONEYLINE"
+	PLAYERPROP GetCalibrationApiV1EmulatorPerformanceCalibrationGetParamsMarketType = "PLAYER_PROP"
+	SPREAD     GetCalibrationApiV1EmulatorPerformanceCalibrationGetParamsMarketType = "SPREAD"
+	TEAMPROP   GetCalibrationApiV1EmulatorPerformanceCalibrationGetParamsMarketType = "TEAM_PROP"
+	TOTAL      GetCalibrationApiV1EmulatorPerformanceCalibrationGetParamsMarketType = "TOTAL"
 )
 
 // Defines values for GetCalibrationApiV1EmulatorPerformanceCalibrationGetParamsWindow.
@@ -230,27 +289,32 @@ type BetData struct {
 	EdgeId               *openapi_types.UUID `json:"edge_id"`
 	EdgePercentage       float32             `json:"edge_percentage"`
 	GameExternalId       string              `json:"game_external_id"`
-	GameId               openapi_types.UUID  `json:"game_id"`
+	GameId               *openapi_types.UUID `json:"game_id"`
 	GradedAt             *time.Time          `json:"graded_at"`
 	Id                   openapi_types.UUID  `json:"id"`
+	IsLive               *bool               `json:"is_live,omitempty"`
+	IsParlay             *bool               `json:"is_parlay,omitempty"`
 	KellyFraction        float32             `json:"kelly_fraction"`
 	LineValue            *float32            `json:"line_value"`
 	MarketType           string              `json:"market_type"`
 	OddsAmerican         int                 `json:"odds_american"`
 	OddsDecimal          float32             `json:"odds_decimal"`
 	PlacedAt             time.Time           `json:"placed_at"`
+	PlayerExternalId     *string             `json:"player_external_id"`
 	PredictedProbability float32             `json:"predicted_probability"`
 	PredictionId         *openapi_types.UUID `json:"prediction_id"`
 	ProfitLoss           *float32            `json:"profit_loss"`
 	ProfitLossDollars    *float32            `json:"profit_loss_dollars"`
+	PropType             *string             `json:"prop_type"`
 	Reasoning            *string             `json:"reasoning"`
 	Result               BetDataResult       `json:"result"`
 	Selection            string              `json:"selection"`
-	Side                 string              `json:"side"`
+	Side                 *string             `json:"side"`
 	SportsbookId         *openapi_types.UUID `json:"sportsbook_id"`
 	SportsbookKey        string              `json:"sportsbook_key"`
 	Stake                float32             `json:"stake"`
 	StakeDollars         float32             `json:"stake_dollars"`
+	StatType             *string             `json:"stat_type"`
 }
 
 // BetDataResult defines model for BetData.Result.
@@ -264,28 +328,33 @@ type BetDetailData struct {
 	EdgeId               *openapi_types.UUID `json:"edge_id"`
 	EdgePercentage       float32             `json:"edge_percentage"`
 	GameExternalId       string              `json:"game_external_id"`
-	GameId               openapi_types.UUID  `json:"game_id"`
+	GameId               *openapi_types.UUID `json:"game_id"`
 	Grade                *GradeData          `json:"grade"`
 	GradedAt             *time.Time          `json:"graded_at"`
 	Id                   openapi_types.UUID  `json:"id"`
+	IsLive               *bool               `json:"is_live,omitempty"`
+	IsParlay             *bool               `json:"is_parlay,omitempty"`
 	KellyFraction        float32             `json:"kelly_fraction"`
 	LineValue            *float32            `json:"line_value"`
 	MarketType           string              `json:"market_type"`
 	OddsAmerican         int                 `json:"odds_american"`
 	OddsDecimal          float32             `json:"odds_decimal"`
 	PlacedAt             time.Time           `json:"placed_at"`
+	PlayerExternalId     *string             `json:"player_external_id"`
 	PredictedProbability float32             `json:"predicted_probability"`
 	PredictionId         *openapi_types.UUID `json:"prediction_id"`
 	ProfitLoss           *float32            `json:"profit_loss"`
 	ProfitLossDollars    *float32            `json:"profit_loss_dollars"`
+	PropType             *string             `json:"prop_type"`
 	Reasoning            *string             `json:"reasoning"`
 	Result               BetDetailDataResult `json:"result"`
 	Selection            string              `json:"selection"`
-	Side                 string              `json:"side"`
+	Side                 *string             `json:"side"`
 	SportsbookId         *openapi_types.UUID `json:"sportsbook_id"`
 	SportsbookKey        string              `json:"sportsbook_key"`
 	Stake                float32             `json:"stake"`
 	StakeDollars         float32             `json:"stake_dollars"`
+	StatType             *string             `json:"stat_type"`
 }
 
 // BetDetailDataResult defines model for BetDetailData.Result.
@@ -373,6 +442,14 @@ type EnvelopeCalibrationData struct {
 type EnvelopeHealthData struct {
 	Data HealthData `json:"data"`
 	Meta Meta       `json:"meta"`
+}
+
+// EnvelopeParlayDetailData defines model for Envelope_ParlayDetailData_.
+type EnvelopeParlayDetailData struct {
+	// Data A parlay parent with its legs. combined_odds_* mirror the parent's
+	// odds fields: the price captured at placement (product of leg decimals).
+	Data ParlayDetailData `json:"data"`
+	Meta Meta             `json:"meta"`
 }
 
 // EnvelopePerformanceData defines model for Envelope_PerformanceData_.
@@ -465,6 +542,92 @@ type Pagination struct {
 	NextCursor *string `json:"next_cursor"`
 }
 
+// ParlayDetailData A parlay parent with its legs. combined_odds_* mirror the parent's
+// odds fields: the price captured at placement (product of leg decimals).
+type ParlayDetailData struct {
+	ClosingLineValue     *float32               `json:"closing_line_value"`
+	ClosingOddsAmerican  *int                   `json:"closing_odds_american"`
+	Clv                  *float32               `json:"clv"`
+	CombinedOddsAmerican int                    `json:"combined_odds_american"`
+	CombinedOddsDecimal  float32                `json:"combined_odds_decimal"`
+	EdgeId               *openapi_types.UUID    `json:"edge_id"`
+	EdgePercentage       float32                `json:"edge_percentage"`
+	GameExternalId       string                 `json:"game_external_id"`
+	GameId               *openapi_types.UUID    `json:"game_id"`
+	Grade                *GradeData             `json:"grade"`
+	GradedAt             *time.Time             `json:"graded_at"`
+	Id                   openapi_types.UUID     `json:"id"`
+	IsLive               *bool                  `json:"is_live,omitempty"`
+	IsParlay             *bool                  `json:"is_parlay,omitempty"`
+	KellyFraction        float32                `json:"kelly_fraction"`
+	Legs                 []ParlayLegData        `json:"legs"`
+	LineValue            *float32               `json:"line_value"`
+	MarketType           string                 `json:"market_type"`
+	OddsAmerican         int                    `json:"odds_american"`
+	OddsDecimal          float32                `json:"odds_decimal"`
+	PlacedAt             time.Time              `json:"placed_at"`
+	PlayerExternalId     *string                `json:"player_external_id"`
+	PredictedProbability float32                `json:"predicted_probability"`
+	PredictionId         *openapi_types.UUID    `json:"prediction_id"`
+	ProfitLoss           *float32               `json:"profit_loss"`
+	ProfitLossDollars    *float32               `json:"profit_loss_dollars"`
+	PropType             *string                `json:"prop_type"`
+	Reasoning            *string                `json:"reasoning"`
+	Result               ParlayDetailDataResult `json:"result"`
+	Selection            string                 `json:"selection"`
+	Side                 *string                `json:"side"`
+	SportsbookId         *openapi_types.UUID    `json:"sportsbook_id"`
+	SportsbookKey        string                 `json:"sportsbook_key"`
+	Stake                float32                `json:"stake"`
+	StakeDollars         float32                `json:"stake_dollars"`
+	StatType             *string                `json:"stat_type"`
+}
+
+// ParlayDetailDataResult defines model for ParlayDetailData.Result.
+type ParlayDetailDataResult string
+
+// ParlayLegData defines model for ParlayLegData.
+type ParlayLegData struct {
+	GameExternalId string                 `json:"game_external_id"`
+	GameId         *openapi_types.UUID    `json:"game_id"`
+	Id             openapi_types.UUID     `json:"id"`
+	League         string                 `json:"league"`
+	LegIndex       int                    `json:"leg_index"`
+	LegStatus      ParlayLegDataLegStatus `json:"leg_status"`
+	LineValue      *float32               `json:"line_value"`
+	MarketType     string                 `json:"market_type"`
+	OddsAmerican   int                    `json:"odds_american"`
+	OddsDecimal    float32                `json:"odds_decimal"`
+	Selection      string                 `json:"selection"`
+	Side           *string                `json:"side"`
+}
+
+// ParlayLegDataLegStatus defines model for ParlayLegData.LegStatus.
+type ParlayLegDataLegStatus string
+
+// ParlayLegRequest One leg of a parlay placement (ADR-028). v1 accepts team markets only.
+//
+// Business rules with pinned 422 semantics (prop markets, duplicate or
+// opposite-side legs) are enforced in the service layer, not here: pydantic
+// validation surfaces as 400 VALIDATION_ERROR in this API.
+type ParlayLegRequest struct {
+	GameExternalId *string            `json:"game_external_id"`
+	GameId         openapi_types.UUID `json:"game_id"`
+
+	// LineValue Advisory only: the line captured from lines-service at placement is authoritative.
+	LineValue     *float32                   `json:"line_value"`
+	MarketType    ParlayLegRequestMarketType `json:"market_type"`
+	Selection     string                     `json:"selection"`
+	Side          ParlayLegRequestSide       `json:"side"`
+	SportsbookKey *string                    `json:"sportsbook_key"`
+}
+
+// ParlayLegRequestMarketType defines model for ParlayLegRequest.MarketType.
+type ParlayLegRequestMarketType string
+
+// ParlayLegRequestSide defines model for ParlayLegRequest.Side.
+type ParlayLegRequestSide string
+
 // PerformanceData defines model for PerformanceData.
 type PerformanceData struct {
 	AvgClv              *float32   `json:"avg_clv"`
@@ -507,22 +670,43 @@ type PlaceBetRequest struct {
 	GameId               openapi_types.UUID        `json:"game_id"`
 	KellyFraction        *float32                  `json:"kelly_fraction"`
 	MarketType           PlaceBetRequestMarketType `json:"market_type"`
+	PlayerExternalId     *string                   `json:"player_external_id"`
 	PredictedProbability float32                   `json:"predicted_probability"`
 	PredictionId         *openapi_types.UUID       `json:"prediction_id"`
+	PropType             *PlaceBetRequestPropType  `json:"prop_type"`
 	Reasoning            *string                   `json:"reasoning"`
 	Selection            string                    `json:"selection"`
 	Side                 PlaceBetRequestSide       `json:"side"`
 	SportsbookKey        *string                   `json:"sportsbook_key"`
 
 	// Stake Stake in units. Must fit the available bankroll (checked at placement).
-	Stake float32 `json:"stake"`
+	Stake    float32 `json:"stake"`
+	StatType *string `json:"stat_type"`
 }
 
 // PlaceBetRequestMarketType defines model for PlaceBetRequest.MarketType.
 type PlaceBetRequestMarketType string
 
+// PlaceBetRequestPropType defines model for PlaceBetRequest.PropType.
+type PlaceBetRequestPropType string
+
 // PlaceBetRequestSide defines model for PlaceBetRequest.Side.
 type PlaceBetRequestSide string
+
+// PlaceParlayRequest defines model for PlaceParlayRequest.
+type PlaceParlayRequest struct {
+	// EdgePercentage Edge in percentage points (4.2 = 4.2%).
+	EdgePercentage float32            `json:"edge_percentage"`
+	KellyFraction  *float32           `json:"kelly_fraction"`
+	Legs           []ParlayLegRequest `json:"legs"`
+
+	// PredictedProbability Joint probability of every leg winning.
+	PredictedProbability float32 `json:"predicted_probability"`
+	Reasoning            *string `json:"reasoning"`
+
+	// Stake Stake in units. Must fit the available bankroll (checked at placement).
+	Stake float32 `json:"stake"`
+}
 
 // ValidationError defines model for ValidationError.
 type ValidationError struct {
@@ -579,6 +763,9 @@ type ListBetsApiV1EmulatorBetsGetParams struct {
 	// MinEdge Minimum edge percentage.
 	MinEdge *float32 `form:"min_edge,omitempty" json:"min_edge,omitempty"`
 
+	// IsParlay true for parlay parents only, false to exclude them.
+	IsParlay *bool `form:"is_parlay,omitempty" json:"is_parlay,omitempty"`
+
 	// Status open for pending, graded for completed, or all.
 	Status *ListBetsApiV1EmulatorBetsGetParamsStatus `form:"status,omitempty" json:"status,omitempty"`
 
@@ -609,6 +796,12 @@ type PlaceBetApiV1EmulatorBetsPostParams struct {
 
 // GradeBetApiV1EmulatorBetsBetIdGradePostJSONBody defines parameters for GradeBetApiV1EmulatorBetsBetIdGradePost.
 type GradeBetApiV1EmulatorBetsBetIdGradePostJSONBody = GradeRequest
+
+// PlaceParlayApiV1EmulatorParlaysPostParams defines parameters for PlaceParlayApiV1EmulatorParlaysPost.
+type PlaceParlayApiV1EmulatorParlaysPostParams struct {
+	// XIdempotencyKey UUID preventing duplicate placement on retries.
+	XIdempotencyKey string `json:"x-idempotency-key"`
+}
 
 // GetPerformanceApiV1EmulatorPerformanceGetParams defines parameters for GetPerformanceApiV1EmulatorPerformanceGet.
 type GetPerformanceApiV1EmulatorPerformanceGetParams struct {
@@ -687,6 +880,9 @@ type PlaceBetApiV1EmulatorBetsPostJSONRequestBody = PlaceBetRequest
 
 // GradeBetApiV1EmulatorBetsBetIdGradePostJSONRequestBody defines body for GradeBetApiV1EmulatorBetsBetIdGradePost for application/json ContentType.
 type GradeBetApiV1EmulatorBetsBetIdGradePostJSONRequestBody = GradeBetApiV1EmulatorBetsBetIdGradePostJSONBody
+
+// PlaceParlayApiV1EmulatorParlaysPostJSONRequestBody defines body for PlaceParlayApiV1EmulatorParlaysPost for application/json ContentType.
+type PlaceParlayApiV1EmulatorParlaysPostJSONRequestBody = PlaceParlayRequest
 
 // AsValidationErrorLoc0 returns the union data inside the ValidationError_Loc_Item as a ValidationErrorLoc0
 func (t ValidationError_Loc_Item) AsValidationErrorLoc0() (ValidationErrorLoc0, error) {
@@ -848,6 +1044,14 @@ type ClientInterface interface {
 	// GetHealthApiV1EmulatorHealthGet request
 	GetHealthApiV1EmulatorHealthGet(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// PlaceParlayApiV1EmulatorParlaysPostWithBody request with any body
+	PlaceParlayApiV1EmulatorParlaysPostWithBody(ctx context.Context, params *PlaceParlayApiV1EmulatorParlaysPostParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PlaceParlayApiV1EmulatorParlaysPost(ctx context.Context, params *PlaceParlayApiV1EmulatorParlaysPostParams, body PlaceParlayApiV1EmulatorParlaysPostJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetParlayApiV1EmulatorParlaysBetIdGet request
+	GetParlayApiV1EmulatorParlaysBetIdGet(ctx context.Context, betId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetPerformanceApiV1EmulatorPerformanceGet request
 	GetPerformanceApiV1EmulatorPerformanceGet(ctx context.Context, params *GetPerformanceApiV1EmulatorPerformanceGetParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -956,6 +1160,42 @@ func (c *Client) GradeBetApiV1EmulatorBetsBetIdGradePost(ctx context.Context, be
 
 func (c *Client) GetHealthApiV1EmulatorHealthGet(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetHealthApiV1EmulatorHealthGetRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PlaceParlayApiV1EmulatorParlaysPostWithBody(ctx context.Context, params *PlaceParlayApiV1EmulatorParlaysPostParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPlaceParlayApiV1EmulatorParlaysPostRequestWithBody(c.Server, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PlaceParlayApiV1EmulatorParlaysPost(ctx context.Context, params *PlaceParlayApiV1EmulatorParlaysPostParams, body PlaceParlayApiV1EmulatorParlaysPostJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPlaceParlayApiV1EmulatorParlaysPostRequest(c.Server, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetParlayApiV1EmulatorParlaysBetIdGet(ctx context.Context, betId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetParlayApiV1EmulatorParlaysBetIdGetRequest(c.Server, betId)
 	if err != nil {
 		return nil, err
 	}
@@ -1228,6 +1468,22 @@ func NewListBetsApiV1EmulatorBetsGetRequest(server string, params *ListBetsApiV1
 
 		}
 
+		if params.IsParlay != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "is_parlay", runtime.ParamLocationQuery, *params.IsParlay); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
 		if params.Status != nil {
 
 			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "status", runtime.ParamLocationQuery, *params.Status); err != nil {
@@ -1431,6 +1687,93 @@ func NewGetHealthApiV1EmulatorHealthGetRequest(server string) (*http.Request, er
 	}
 
 	operationPath := fmt.Sprintf("/api/v1/emulator/health")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewPlaceParlayApiV1EmulatorParlaysPostRequest calls the generic PlaceParlayApiV1EmulatorParlaysPost builder with application/json body
+func NewPlaceParlayApiV1EmulatorParlaysPostRequest(server string, params *PlaceParlayApiV1EmulatorParlaysPostParams, body PlaceParlayApiV1EmulatorParlaysPostJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPlaceParlayApiV1EmulatorParlaysPostRequestWithBody(server, params, "application/json", bodyReader)
+}
+
+// NewPlaceParlayApiV1EmulatorParlaysPostRequestWithBody generates requests for PlaceParlayApiV1EmulatorParlaysPost with any type of body
+func NewPlaceParlayApiV1EmulatorParlaysPostRequestWithBody(server string, params *PlaceParlayApiV1EmulatorParlaysPostParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/emulator/parlays")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithLocation("simple", false, "x-idempotency-key", runtime.ParamLocationHeader, params.XIdempotencyKey)
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("x-idempotency-key", headerParam0)
+
+	}
+
+	return req, nil
+}
+
+// NewGetParlayApiV1EmulatorParlaysBetIdGetRequest generates requests for GetParlayApiV1EmulatorParlaysBetIdGet
+func NewGetParlayApiV1EmulatorParlaysBetIdGetRequest(server string, betId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "bet_id", runtime.ParamLocationPath, betId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/emulator/parlays/%s", pathParam0)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -1839,6 +2182,14 @@ type ClientWithResponsesInterface interface {
 	// GetHealthApiV1EmulatorHealthGetWithResponse request
 	GetHealthApiV1EmulatorHealthGetWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetHealthApiV1EmulatorHealthGetResponse, error)
 
+	// PlaceParlayApiV1EmulatorParlaysPostWithBodyWithResponse request with any body
+	PlaceParlayApiV1EmulatorParlaysPostWithBodyWithResponse(ctx context.Context, params *PlaceParlayApiV1EmulatorParlaysPostParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PlaceParlayApiV1EmulatorParlaysPostResponse, error)
+
+	PlaceParlayApiV1EmulatorParlaysPostWithResponse(ctx context.Context, params *PlaceParlayApiV1EmulatorParlaysPostParams, body PlaceParlayApiV1EmulatorParlaysPostJSONRequestBody, reqEditors ...RequestEditorFn) (*PlaceParlayApiV1EmulatorParlaysPostResponse, error)
+
+	// GetParlayApiV1EmulatorParlaysBetIdGetWithResponse request
+	GetParlayApiV1EmulatorParlaysBetIdGetWithResponse(ctx context.Context, betId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetParlayApiV1EmulatorParlaysBetIdGetResponse, error)
+
 	// GetPerformanceApiV1EmulatorPerformanceGetWithResponse request
 	GetPerformanceApiV1EmulatorPerformanceGetWithResponse(ctx context.Context, params *GetPerformanceApiV1EmulatorPerformanceGetParams, reqEditors ...RequestEditorFn) (*GetPerformanceApiV1EmulatorPerformanceGetResponse, error)
 
@@ -2008,6 +2359,52 @@ func (r GetHealthApiV1EmulatorHealthGetResponse) StatusCode() int {
 	return 0
 }
 
+type PlaceParlayApiV1EmulatorParlaysPostResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON201      *EnvelopeParlayDetailData
+	JSON422      *HTTPValidationError
+}
+
+// Status returns HTTPResponse.Status
+func (r PlaceParlayApiV1EmulatorParlaysPostResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PlaceParlayApiV1EmulatorParlaysPostResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetParlayApiV1EmulatorParlaysBetIdGetResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *EnvelopeParlayDetailData
+	JSON422      *HTTPValidationError
+}
+
+// Status returns HTTPResponse.Status
+func (r GetParlayApiV1EmulatorParlaysBetIdGetResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetParlayApiV1EmulatorParlaysBetIdGetResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type GetPerformanceApiV1EmulatorPerformanceGetResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -2154,6 +2551,32 @@ func (c *ClientWithResponses) GetHealthApiV1EmulatorHealthGetWithResponse(ctx co
 		return nil, err
 	}
 	return ParseGetHealthApiV1EmulatorHealthGetResponse(rsp)
+}
+
+// PlaceParlayApiV1EmulatorParlaysPostWithBodyWithResponse request with arbitrary body returning *PlaceParlayApiV1EmulatorParlaysPostResponse
+func (c *ClientWithResponses) PlaceParlayApiV1EmulatorParlaysPostWithBodyWithResponse(ctx context.Context, params *PlaceParlayApiV1EmulatorParlaysPostParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PlaceParlayApiV1EmulatorParlaysPostResponse, error) {
+	rsp, err := c.PlaceParlayApiV1EmulatorParlaysPostWithBody(ctx, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePlaceParlayApiV1EmulatorParlaysPostResponse(rsp)
+}
+
+func (c *ClientWithResponses) PlaceParlayApiV1EmulatorParlaysPostWithResponse(ctx context.Context, params *PlaceParlayApiV1EmulatorParlaysPostParams, body PlaceParlayApiV1EmulatorParlaysPostJSONRequestBody, reqEditors ...RequestEditorFn) (*PlaceParlayApiV1EmulatorParlaysPostResponse, error) {
+	rsp, err := c.PlaceParlayApiV1EmulatorParlaysPost(ctx, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePlaceParlayApiV1EmulatorParlaysPostResponse(rsp)
+}
+
+// GetParlayApiV1EmulatorParlaysBetIdGetWithResponse request returning *GetParlayApiV1EmulatorParlaysBetIdGetResponse
+func (c *ClientWithResponses) GetParlayApiV1EmulatorParlaysBetIdGetWithResponse(ctx context.Context, betId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetParlayApiV1EmulatorParlaysBetIdGetResponse, error) {
+	rsp, err := c.GetParlayApiV1EmulatorParlaysBetIdGet(ctx, betId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetParlayApiV1EmulatorParlaysBetIdGetResponse(rsp)
 }
 
 // GetPerformanceApiV1EmulatorPerformanceGetWithResponse request returning *GetPerformanceApiV1EmulatorPerformanceGetResponse
@@ -2394,6 +2817,72 @@ func ParseGetHealthApiV1EmulatorHealthGetResponse(rsp *http.Response) (*GetHealt
 			return nil, err
 		}
 		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePlaceParlayApiV1EmulatorParlaysPostResponse parses an HTTP response from a PlaceParlayApiV1EmulatorParlaysPostWithResponse call
+func ParsePlaceParlayApiV1EmulatorParlaysPostResponse(rsp *http.Response) (*PlaceParlayApiV1EmulatorParlaysPostResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PlaceParlayApiV1EmulatorParlaysPostResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest EnvelopeParlayDetailData
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest HTTPValidationError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetParlayApiV1EmulatorParlaysBetIdGetResponse parses an HTTP response from a GetParlayApiV1EmulatorParlaysBetIdGetWithResponse call
+func ParseGetParlayApiV1EmulatorParlaysBetIdGetResponse(rsp *http.Response) (*GetParlayApiV1EmulatorParlaysBetIdGetResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetParlayApiV1EmulatorParlaysBetIdGetResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest EnvelopeParlayDetailData
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest HTTPValidationError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
 
 	}
 

@@ -1,6 +1,6 @@
 module github.com/Bookie-Breaker/bookie-breaker-cli
 
-go 1.25.11
+go 1.25.12
 
 require (
 	github.com/charmbracelet/glamour v1.0.0

@@ -59,6 +59,14 @@ func Stake(u float64) string {
 	return fmt.Sprintf("%.2f", u)
 }
 
+// StringPtr renders a nullable string, or a dash when absent.
+func StringPtr(s *string) string {
+	if s == nil || *s == "" {
+		return Dash
+	}
+	return *s
+}
+
 // LineValue renders a nullable point spread or total, or a dash.
 func LineValue(v *float32) string {
 	if v == nil {
