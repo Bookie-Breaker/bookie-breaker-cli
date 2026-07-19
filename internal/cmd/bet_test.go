@@ -18,12 +18,12 @@ import (
 func placedBetFixture() bookieemulator.BetData {
 	return bookieemulator.BetData{
 		Id:                   uuid.MustParse("77777777-7777-7777-7777-777777777777"),
-		GameId:               uuid.MustParse(testGameID),
+		GameId:               ptr(uuid.MustParse(testGameID)),
 		GameExternalId:       "DAL@PHI-2026-07-04",
 		SportsbookKey:        "draftkings",
 		MarketType:           "SPREAD",
 		Selection:            "PHI -2.5",
-		Side:                 "HOME",
+		Side:                 ptr("HOME"),
 		LineValue:            ptr(float32(-2.5)),
 		OddsAmerican:         -110,
 		OddsDecimal:          1.91,
@@ -112,7 +112,7 @@ func drawBetFixture() bookieemulator.BetData {
 	b.GameExternalId = "CHE@ARS-2026-07-05"
 	b.MarketType = "MONEYLINE"
 	b.Selection = "Draw"
-	b.Side = "DRAW"
+	b.Side = ptr("DRAW")
 	b.LineValue = nil
 	b.OddsAmerican = 240
 	b.OddsDecimal = 3.4

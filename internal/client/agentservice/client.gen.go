@@ -218,6 +218,12 @@ type EnvelopeHealthData struct {
 	Meta Meta       `json:"meta"`
 }
 
+// EnvelopeParlayEvaluationData defines model for Envelope_ParlayEvaluationData_.
+type EnvelopeParlayEvaluationData struct {
+	Data ParlayEvaluationData `json:"data"`
+	Meta Meta                 `json:"meta"`
+}
+
 // EnvelopePipelineRunAcceptedData defines model for Envelope_PipelineRunAcceptedData_.
 type EnvelopePipelineRunAcceptedData struct {
 	Data PipelineRunAcceptedData `json:"data"`
@@ -317,6 +323,63 @@ type Pagination struct {
 	HasMore    bool    `json:"has_more"`
 	Limit      int     `json:"limit"`
 	NextCursor *string `json:"next_cursor"`
+}
+
+// ParlayEvaluateRequest defines model for ParlayEvaluateRequest.
+type ParlayEvaluateRequest struct {
+	Legs []ParlayLegRequest `json:"legs"`
+
+	// ParlayOddsAmerican Offered SGP price; omitted -> product of leg decimals.
+	ParlayOddsAmerican *int `json:"parlay_odds_american"`
+
+	// Persist Persist the evaluation even when it misses the EV threshold.
+	Persist *bool `json:"persist,omitempty"`
+}
+
+// ParlayEvaluationData defines model for ParlayEvaluationData.
+type ParlayEvaluationData struct {
+	CombinedOddsAmerican   int                `json:"combined_odds_american"`
+	CombinedOddsDecimal    float32            `json:"combined_odds_decimal"`
+	CorrelationEdge        float32            `json:"correlation_edge"`
+	Correlations           map[string]float32 `json:"correlations"`
+	EvPct                  float32            `json:"ev_pct"`
+	ExpectedValue          float32            `json:"expected_value"`
+	ExpiresAt              string             `json:"expires_at"`
+	IndependentProbability float32            `json:"independent_probability"`
+	IsSameGame             bool               `json:"is_same_game"`
+	JointProbability       float32            `json:"joint_probability"`
+	KellyFraction          float32            `json:"kelly_fraction"`
+	League                 string             `json:"league"`
+	Legs                   []ParlayLegData    `json:"legs"`
+	MeetsThreshold         bool               `json:"meets_threshold"`
+	Method                 string             `json:"method"`
+	ParlayId               *string            `json:"parlay_id"`
+	RecommendedStake       float32            `json:"recommended_stake"`
+}
+
+// ParlayLegData defines model for ParlayLegData.
+type ParlayLegData struct {
+	GameExternalId       string   `json:"game_external_id"`
+	GameId               string   `json:"game_id"`
+	LineValue            *float32 `json:"line_value"`
+	MarketType           string   `json:"market_type"`
+	OddsAmerican         int      `json:"odds_american"`
+	OddsDecimal          float32  `json:"odds_decimal"`
+	PredictedProbability float32  `json:"predicted_probability"`
+	Selection            string   `json:"selection"`
+	Side                 string   `json:"side"`
+	SimLegKey            *string  `json:"sim_leg_key"`
+	SportsbookKey        string   `json:"sportsbook_key"`
+}
+
+// ParlayLegRequest defines model for ParlayLegRequest.
+type ParlayLegRequest struct {
+	// GameExternalId lines-service external game id
+	GameExternalId string   `json:"game_external_id"`
+	LineValue      *float32 `json:"line_value"`
+	MarketType     string   `json:"market_type"`
+	Side           string   `json:"side"`
+	SportsbookKey  *string  `json:"sportsbook_key"`
 }
 
 // PerformanceSummary defines model for PerformanceSummary.
@@ -539,6 +602,9 @@ type CreateAnalysisApiV1AgentAnalysisPostJSONRequestBody = AnalysisRequest
 // CreateAnalysisStreamApiV1AgentAnalysisStreamPostJSONRequestBody defines body for CreateAnalysisStreamApiV1AgentAnalysisStreamPost for application/json ContentType.
 type CreateAnalysisStreamApiV1AgentAnalysisStreamPostJSONRequestBody = AnalysisRequest
 
+// EvaluateParlayApiV1AgentParlaysEvaluatePostJSONRequestBody defines body for EvaluateParlayApiV1AgentParlaysEvaluatePost for application/json ContentType.
+type EvaluateParlayApiV1AgentParlaysEvaluatePostJSONRequestBody = ParlayEvaluateRequest
+
 // RunPipelineApiV1AgentPipelineRunPostJSONRequestBody defines body for RunPipelineApiV1AgentPipelineRunPost for application/json ContentType.
 type RunPipelineApiV1AgentPipelineRunPostJSONRequestBody = PipelineRunRequest
 
@@ -711,6 +777,11 @@ type ClientInterface interface {
 	// GetHealthApiV1AgentHealthGet request
 	GetHealthApiV1AgentHealthGet(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// EvaluateParlayApiV1AgentParlaysEvaluatePostWithBody request with any body
+	EvaluateParlayApiV1AgentParlaysEvaluatePostWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	EvaluateParlayApiV1AgentParlaysEvaluatePost(ctx context.Context, body EvaluateParlayApiV1AgentParlaysEvaluatePostJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// RunPipelineApiV1AgentPipelineRunPostWithBody request with any body
 	RunPipelineApiV1AgentPipelineRunPostWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -853,6 +924,30 @@ func (c *Client) GetEdgeApiV1AgentEdgesEdgeIdGet(ctx context.Context, edgeId ope
 
 func (c *Client) GetHealthApiV1AgentHealthGet(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetHealthApiV1AgentHealthGetRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) EvaluateParlayApiV1AgentParlaysEvaluatePostWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewEvaluateParlayApiV1AgentParlaysEvaluatePostRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) EvaluateParlayApiV1AgentParlaysEvaluatePost(ctx context.Context, body EvaluateParlayApiV1AgentParlaysEvaluatePostJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewEvaluateParlayApiV1AgentParlaysEvaluatePostRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -1447,6 +1542,46 @@ func NewGetHealthApiV1AgentHealthGetRequest(server string) (*http.Request, error
 	return req, nil
 }
 
+// NewEvaluateParlayApiV1AgentParlaysEvaluatePostRequest calls the generic EvaluateParlayApiV1AgentParlaysEvaluatePost builder with application/json body
+func NewEvaluateParlayApiV1AgentParlaysEvaluatePostRequest(server string, body EvaluateParlayApiV1AgentParlaysEvaluatePostJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewEvaluateParlayApiV1AgentParlaysEvaluatePostRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewEvaluateParlayApiV1AgentParlaysEvaluatePostRequestWithBody generates requests for EvaluateParlayApiV1AgentParlaysEvaluatePost with any type of body
+func NewEvaluateParlayApiV1AgentParlaysEvaluatePostRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/agent/parlays/evaluate")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewRunPipelineApiV1AgentPipelineRunPostRequest calls the generic RunPipelineApiV1AgentPipelineRunPost builder with application/json body
 func NewRunPipelineApiV1AgentPipelineRunPostRequest(server string, body RunPipelineApiV1AgentPipelineRunPostJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -1727,6 +1862,11 @@ type ClientWithResponsesInterface interface {
 	// GetHealthApiV1AgentHealthGetWithResponse request
 	GetHealthApiV1AgentHealthGetWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetHealthApiV1AgentHealthGetResponse, error)
 
+	// EvaluateParlayApiV1AgentParlaysEvaluatePostWithBodyWithResponse request with any body
+	EvaluateParlayApiV1AgentParlaysEvaluatePostWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*EvaluateParlayApiV1AgentParlaysEvaluatePostResponse, error)
+
+	EvaluateParlayApiV1AgentParlaysEvaluatePostWithResponse(ctx context.Context, body EvaluateParlayApiV1AgentParlaysEvaluatePostJSONRequestBody, reqEditors ...RequestEditorFn) (*EvaluateParlayApiV1AgentParlaysEvaluatePostResponse, error)
+
 	// RunPipelineApiV1AgentPipelineRunPostWithBodyWithResponse request with any body
 	RunPipelineApiV1AgentPipelineRunPostWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RunPipelineApiV1AgentPipelineRunPostResponse, error)
 
@@ -1954,6 +2094,29 @@ func (r GetHealthApiV1AgentHealthGetResponse) StatusCode() int {
 	return 0
 }
 
+type EvaluateParlayApiV1AgentParlaysEvaluatePostResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *EnvelopeParlayEvaluationData
+	JSON422      *HTTPValidationError
+}
+
+// Status returns HTTPResponse.Status
+func (r EvaluateParlayApiV1AgentParlaysEvaluatePostResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r EvaluateParlayApiV1AgentParlaysEvaluatePostResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type RunPipelineApiV1AgentPipelineRunPostResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -2164,6 +2327,23 @@ func (c *ClientWithResponses) GetHealthApiV1AgentHealthGetWithResponse(ctx conte
 		return nil, err
 	}
 	return ParseGetHealthApiV1AgentHealthGetResponse(rsp)
+}
+
+// EvaluateParlayApiV1AgentParlaysEvaluatePostWithBodyWithResponse request with arbitrary body returning *EvaluateParlayApiV1AgentParlaysEvaluatePostResponse
+func (c *ClientWithResponses) EvaluateParlayApiV1AgentParlaysEvaluatePostWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*EvaluateParlayApiV1AgentParlaysEvaluatePostResponse, error) {
+	rsp, err := c.EvaluateParlayApiV1AgentParlaysEvaluatePostWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseEvaluateParlayApiV1AgentParlaysEvaluatePostResponse(rsp)
+}
+
+func (c *ClientWithResponses) EvaluateParlayApiV1AgentParlaysEvaluatePostWithResponse(ctx context.Context, body EvaluateParlayApiV1AgentParlaysEvaluatePostJSONRequestBody, reqEditors ...RequestEditorFn) (*EvaluateParlayApiV1AgentParlaysEvaluatePostResponse, error) {
+	rsp, err := c.EvaluateParlayApiV1AgentParlaysEvaluatePost(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseEvaluateParlayApiV1AgentParlaysEvaluatePostResponse(rsp)
 }
 
 // RunPipelineApiV1AgentPipelineRunPostWithBodyWithResponse request with arbitrary body returning *RunPipelineApiV1AgentPipelineRunPostResponse
@@ -2521,6 +2701,39 @@ func ParseGetHealthApiV1AgentHealthGetResponse(rsp *http.Response) (*GetHealthAp
 			return nil, err
 		}
 		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseEvaluateParlayApiV1AgentParlaysEvaluatePostResponse parses an HTTP response from a EvaluateParlayApiV1AgentParlaysEvaluatePostWithResponse call
+func ParseEvaluateParlayApiV1AgentParlaysEvaluatePostResponse(rsp *http.Response) (*EvaluateParlayApiV1AgentParlaysEvaluatePostResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &EvaluateParlayApiV1AgentParlaysEvaluatePostResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest EnvelopeParlayEvaluationData
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest HTTPValidationError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
 
 	}
 

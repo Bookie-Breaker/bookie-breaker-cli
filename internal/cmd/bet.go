@@ -106,7 +106,7 @@ func newBetPlaceCmd(a *app) *cobra.Command {
 				{"ID", b.Id.String()},
 				{"Game", b.GameExternalId},
 				{"Selection", b.Selection},
-				{"Side", b.Side},
+				{"Side", ui.StringPtr(b.Side)},
 				{"Market", b.MarketType},
 				{"Line", ui.LineValue(b.LineValue)},
 				{"Odds", ui.Odds(b.OddsAmerican)},

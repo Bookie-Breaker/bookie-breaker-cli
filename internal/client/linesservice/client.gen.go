@@ -18,6 +18,18 @@ import (
 	openapi_types "github.com/oapi-codegen/runtime/types"
 )
 
+// Defines values for BestLinePropType.
+const (
+	BestLinePropTypeOVERUNDER BestLinePropType = "OVER_UNDER"
+	BestLinePropTypeYESNO     BestLinePropType = "YES_NO"
+)
+
+// Defines values for ClosingLinePropType.
+const (
+	ClosingLinePropTypeOVERUNDER ClosingLinePropType = "OVER_UNDER"
+	ClosingLinePropTypeYESNO     ClosingLinePropType = "YES_NO"
+)
+
 // Defines values for HealthResponseDependenciesStatus.
 const (
 	HealthResponseDependenciesStatusHealthy   HealthResponseDependenciesStatus = "healthy"
@@ -43,6 +55,12 @@ const (
 	TOTAL      LineSnapshotMarketType = "TOTAL"
 )
 
+// Defines values for LineSnapshotPropType.
+const (
+	OVERUNDER LineSnapshotPropType = "OVER_UNDER"
+	YESNO     LineSnapshotPropType = "YES_NO"
+)
+
 // Defines values for LineSnapshotSide.
 const (
 	AWAY  LineSnapshotSide = "AWAY"
@@ -62,13 +80,21 @@ type BestLine struct {
 	LineId             *openapi_types.UUID `json:"line_id,omitempty"`
 	LineValue          *float32            `json:"line_value"`
 	MarketType         *string             `json:"market_type,omitempty"`
-	Selection          *string             `json:"selection,omitempty"`
-	Side               *string             `json:"side,omitempty"`
-	SportsbookId       *openapi_types.UUID `json:"sportsbook_id,omitempty"`
-	SportsbookKey      *string             `json:"sportsbook_key,omitempty"`
-	SportsbookName     *string             `json:"sportsbook_name,omitempty"`
-	Timestamp          *time.Time          `json:"timestamp,omitempty"`
+
+	// PlayerId External player id for prop markets (ADR-029); omitted otherwise.
+	PlayerId       *string             `json:"player_id,omitempty"`
+	PropType       *BestLinePropType   `json:"prop_type,omitempty"`
+	Selection      *string             `json:"selection,omitempty"`
+	Side           *string             `json:"side,omitempty"`
+	SportsbookId   *openapi_types.UUID `json:"sportsbook_id,omitempty"`
+	SportsbookKey  *string             `json:"sportsbook_key,omitempty"`
+	SportsbookName *string             `json:"sportsbook_name,omitempty"`
+	StatType       *string             `json:"stat_type,omitempty"`
+	Timestamp      *time.Time          `json:"timestamp,omitempty"`
 }
+
+// BestLinePropType defines model for BestLine.PropType.
+type BestLinePropType string
 
 // BestLineListResponse defines model for BestLineListResponse.
 type BestLineListResponse struct {
@@ -78,17 +104,25 @@ type BestLineListResponse struct {
 
 // ClosingLine defines model for ClosingLine.
 type ClosingLine struct {
-	CapturedAt    *time.Time          `json:"captured_at,omitempty"`
-	GameId        *string             `json:"game_id,omitempty"`
-	Id            *openapi_types.UUID `json:"id,omitempty"`
-	LineValue     *float32            `json:"line_value"`
-	MarketType    *string             `json:"market_type,omitempty"`
-	OddsAmerican  *int                `json:"odds_american,omitempty"`
-	OddsDecimal   *float32            `json:"odds_decimal,omitempty"`
-	Selection     *string             `json:"selection,omitempty"`
-	SportsbookId  *openapi_types.UUID `json:"sportsbook_id,omitempty"`
-	SportsbookKey *string             `json:"sportsbook_key,omitempty"`
+	CapturedAt   *time.Time          `json:"captured_at,omitempty"`
+	GameId       *string             `json:"game_id,omitempty"`
+	Id           *openapi_types.UUID `json:"id,omitempty"`
+	LineValue    *float32            `json:"line_value"`
+	MarketType   *string             `json:"market_type,omitempty"`
+	OddsAmerican *int                `json:"odds_american,omitempty"`
+	OddsDecimal  *float32            `json:"odds_decimal,omitempty"`
+
+	// PlayerId External player id for prop markets (ADR-029); omitted otherwise.
+	PlayerId      *string              `json:"player_id,omitempty"`
+	PropType      *ClosingLinePropType `json:"prop_type,omitempty"`
+	Selection     *string              `json:"selection,omitempty"`
+	SportsbookId  *openapi_types.UUID  `json:"sportsbook_id,omitempty"`
+	SportsbookKey *string              `json:"sportsbook_key,omitempty"`
+	StatType      *string              `json:"stat_type,omitempty"`
 }
+
+// ClosingLinePropType defines model for ClosingLine.PropType.
+type ClosingLinePropType string
 
 // ClosingLineListResponse defines model for ClosingLineListResponse.
 type ClosingLineListResponse struct {
@@ -176,15 +210,25 @@ type LineSnapshot struct {
 	MarketType         LineSnapshotMarketType `json:"market_type"`
 	OddsAmerican       int                    `json:"odds_american"`
 	OddsDecimal        float32                `json:"odds_decimal"`
-	Selection          string                 `json:"selection"`
-	Side               *LineSnapshotSide      `json:"side,omitempty"`
-	SportsbookId       openapi_types.UUID     `json:"sportsbook_id"`
-	SportsbookKey      string                 `json:"sportsbook_key"`
-	Timestamp          time.Time              `json:"timestamp"`
+
+	// PlayerId External player id for prop markets (ADR-029); omitted otherwise.
+	PlayerId      *string               `json:"player_id,omitempty"`
+	PropType      *LineSnapshotPropType `json:"prop_type,omitempty"`
+	Selection     string                `json:"selection"`
+	Side          *LineSnapshotSide     `json:"side,omitempty"`
+	SportsbookId  openapi_types.UUID    `json:"sportsbook_id"`
+	SportsbookKey string                `json:"sportsbook_key"`
+
+	// StatType Canonical prop stat key (the raw odds-source market key, e.g. player_shots_on_target).
+	StatType  *string   `json:"stat_type,omitempty"`
+	Timestamp time.Time `json:"timestamp"`
 }
 
 // LineSnapshotMarketType defines model for LineSnapshot.MarketType.
 type LineSnapshotMarketType string
+
+// LineSnapshotPropType defines model for LineSnapshot.PropType.
+type LineSnapshotPropType string
 
 // LineSnapshotSide defines model for LineSnapshot.Side.
 type LineSnapshotSide string
