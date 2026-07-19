@@ -51,8 +51,9 @@ type BatchDataStatus string
 
 // BatchGameRequest defines model for BatchGameRequest.
 type BatchGameRequest struct {
-	Config *SimulationConfigIn `json:"config"`
-	GameId string              `json:"game_id"`
+	Config    *SimulationConfigIn `json:"config"`
+	GameId    string              `json:"game_id"`
+	LiveState *LiveStateIn        `json:"live_state"`
 }
 
 // BatchGameResult defines model for BatchGameResult.
@@ -185,6 +186,33 @@ type HealthLoad struct {
 	SimulationsToday  int `json:"simulations_today"`
 }
 
+// LiveStateIn Current game state for live re-simulation (Phase 7 Wave 2).
+//
+// Simulates the remainder of the game and adds the current score as an
+// offset. Bounds (fraction_remaining in (0, 1], scores >= 0, sport-specific
+// refinements in their legal ranges) are enforced in the service layer as
+// 422 UNPROCESSABLE_ENTITY per the Wave 2 contract — deliberately not as
+// pydantic Field constraints, which this service's RequestValidationError
+// handler would surface as 400 VALIDATION_ERROR instead.
+//
+// Sport-specific optional fields: “bases“/“outs“/“half“ (baseball;
+// bases is a 3-char occupancy string like "1-3", half is "TOP"/"BOTTOM",
+// period is the inning number), “possession“/“down“/“yardline“
+// (football; possession is "HOME"/"AWAY").
+type LiveStateIn struct {
+	AwayScore         int     `json:"away_score"`
+	Bases             *string `json:"bases"`
+	ClockSeconds      *int    `json:"clock_seconds"`
+	Down              *int    `json:"down"`
+	FractionRemaining float32 `json:"fraction_remaining"`
+	Half              *string `json:"half"`
+	HomeScore         int     `json:"home_score"`
+	Outs              *int    `json:"outs"`
+	Period            *int    `json:"period"`
+	Possession        *string `json:"possession"`
+	Yardline          *int    `json:"yardline"`
+}
+
 // Meta defines model for Meta.
 type Meta struct {
 	RequestId string    `json:"request_id"`
@@ -218,6 +246,7 @@ type SimulationRequest struct {
 	Config       *SimulationConfigIn `json:"config,omitempty"`
 	ForceRefresh *bool               `json:"force_refresh,omitempty"`
 	GameId       string              `json:"game_id"`
+	LiveState    *LiveStateIn        `json:"live_state"`
 }
 
 // SimulationResultData Aggregated simulation result.

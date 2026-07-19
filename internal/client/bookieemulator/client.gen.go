@@ -665,9 +665,12 @@ type PlaceBetRequest struct {
 	EdgeId *openapi_types.UUID `json:"edge_id"`
 
 	// EdgePercentage Edge in percentage points (4.2 = 4.2%).
-	EdgePercentage       float32                   `json:"edge_percentage"`
-	GameExternalId       *string                   `json:"game_external_id"`
-	GameId               openapi_types.UUID        `json:"game_id"`
+	EdgePercentage float32            `json:"edge_percentage"`
+	GameExternalId *string            `json:"game_external_id"`
+	GameId         openapi_types.UUID `json:"game_id"`
+
+	// IsLive In-game placement: the game may be IN_PROGRESS and live lines are preferred at odds capture.
+	IsLive               *bool                     `json:"is_live,omitempty"`
 	KellyFraction        *float32                  `json:"kelly_fraction"`
 	MarketType           PlaceBetRequestMarketType `json:"market_type"`
 	PlayerExternalId     *string                   `json:"player_external_id"`
@@ -765,6 +768,9 @@ type ListBetsApiV1EmulatorBetsGetParams struct {
 
 	// IsParlay true for parlay parents only, false to exclude them.
 	IsParlay *bool `form:"is_parlay,omitempty" json:"is_parlay,omitempty"`
+
+	// IsLive true for live bets only, false for pregame only.
+	IsLive *bool `form:"is_live,omitempty" json:"is_live,omitempty"`
 
 	// Status open for pending, graded for completed, or all.
 	Status *ListBetsApiV1EmulatorBetsGetParamsStatus `form:"status,omitempty" json:"status,omitempty"`
@@ -1471,6 +1477,22 @@ func NewListBetsApiV1EmulatorBetsGetRequest(server string, params *ListBetsApiV1
 		if params.IsParlay != nil {
 
 			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "is_parlay", runtime.ParamLocationQuery, *params.IsParlay); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.IsLive != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "is_live", runtime.ParamLocationQuery, *params.IsLive); err != nil {
 				return nil, err
 			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
 				return nil, err

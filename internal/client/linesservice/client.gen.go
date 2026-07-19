@@ -201,15 +201,18 @@ type LineMovementSnapshot struct {
 
 // LineSnapshot defines model for LineSnapshot.
 type LineSnapshot struct {
-	GameId             string                 `json:"game_id"`
-	Id                 openapi_types.UUID     `json:"id"`
-	ImpliedProbability float32                `json:"implied_probability"`
-	IsClosing          *bool                  `json:"is_closing,omitempty"`
-	IsOpening          *bool                  `json:"is_opening,omitempty"`
-	LineValue          *float32               `json:"line_value"`
-	MarketType         LineSnapshotMarketType `json:"market_type"`
-	OddsAmerican       int                    `json:"odds_american"`
-	OddsDecimal        float32                `json:"odds_decimal"`
+	GameId             string             `json:"game_id"`
+	Id                 openapi_types.UUID `json:"id"`
+	ImpliedProbability float32            `json:"implied_probability"`
+	IsClosing          *bool              `json:"is_closing,omitempty"`
+
+	// IsLive In-game line from the live SSE source (ADR-031).
+	IsLive       *bool                  `json:"is_live,omitempty"`
+	IsOpening    *bool                  `json:"is_opening,omitempty"`
+	LineValue    *float32               `json:"line_value"`
+	MarketType   LineSnapshotMarketType `json:"market_type"`
+	OddsAmerican int                    `json:"odds_american"`
+	OddsDecimal  float32                `json:"odds_decimal"`
 
 	// PlayerId External player id for prop markets (ADR-029); omitted otherwise.
 	PlayerId      *string               `json:"player_id,omitempty"`
@@ -297,6 +300,9 @@ type GetCurrentLinesParams struct {
 	// Sportsbook Filter by sportsbook key (comma-separated)
 	Sportsbook *string `form:"sportsbook,omitempty" json:"sportsbook,omitempty"`
 
+	// IsLive Filter to live (in-game, SharpAPI-sourced) or pregame lines (ADR-031).
+	IsLive *bool `form:"is_live,omitempty" json:"is_live,omitempty"`
+
 	// MarketType Filter by market type (comma-separated)
 	MarketType *string `form:"market_type,omitempty" json:"market_type,omitempty"`
 
@@ -320,6 +326,9 @@ type GetGameLinesParams struct {
 
 	// Side Filter by selection side (e.g. home, away, draw, over, under).
 	Side *string `form:"side,omitempty" json:"side,omitempty"`
+
+	// IsLive Filter to live (in-game, SharpAPI-sourced) or pregame lines (ADR-031).
+	IsLive *bool `form:"is_live,omitempty" json:"is_live,omitempty"`
 
 	// Limit Maximum number of items to return per page.
 	Limit *Limit `form:"limit,omitempty" json:"limit,omitempty"`
@@ -669,6 +678,22 @@ func NewGetCurrentLinesRequest(server string, params *GetCurrentLinesParams) (*h
 
 		}
 
+		if params.IsLive != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "is_live", runtime.ParamLocationQuery, *params.IsLive); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
 		if params.MarketType != nil {
 
 			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "market_type", runtime.ParamLocationQuery, *params.MarketType); err != nil {
@@ -808,6 +833,22 @@ func NewGetGameLinesRequest(server string, gameId GameId, params *GetGameLinesPa
 		if params.Side != nil {
 
 			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "side", runtime.ParamLocationQuery, *params.Side); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.IsLive != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "is_live", runtime.ParamLocationQuery, *params.IsLive); err != nil {
 				return nil, err
 			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
 				return nil, err
