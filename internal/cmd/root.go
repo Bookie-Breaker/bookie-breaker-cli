@@ -78,6 +78,7 @@ func NewRootCmd() *cobra.Command {
 		NewSlateCmd(a),
 		NewPredictCmd(a),
 		NewLinesCmd(a),
+		NewLiveCmd(a),
 		NewBetCmd(a),
 		NewParlayCmd(a),
 		NewPerformanceCmd(a),

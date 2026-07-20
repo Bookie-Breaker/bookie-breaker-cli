@@ -38,6 +38,7 @@ func newBetPlaceCmd(a *app) *cobra.Command {
 		kelly          float64
 		reason         string
 		idempotencyKey string
+		live           bool
 	)
 
 	cmd := &cobra.Command{
@@ -82,6 +83,9 @@ func newBetPlaceCmd(a *app) *cobra.Command {
 			}
 			if reason != "" {
 				body.Reasoning = &reason
+			}
+			if live {
+				body.IsLive = &live
 			}
 			if idempotencyKey == "" {
 				idempotencyKey = uuid.New().String()
@@ -133,6 +137,7 @@ func newBetPlaceCmd(a *app) *cobra.Command {
 	flags.Float64Var(&kelly, "kelly", 0, "kelly fraction, 0-1")
 	flags.StringVar(&reason, "reason", "", "reasoning note")
 	flags.StringVar(&idempotencyKey, "idempotency-key", "", "idempotency key (default: fresh UUID)")
+	flags.BoolVar(&live, "live", false, "place as an in-game (live) bet")
 
 	for _, f := range []string{"game", "market", "selection", "side", "stake", "prob", "edge"} {
 		_ = cmd.MarkFlagRequired(f)
@@ -149,6 +154,7 @@ func newBetListCmd(a *app) *cobra.Command {
 		from    string
 		to      string
 		limit   int
+		live    bool
 	)
 
 	cmd := &cobra.Command{
@@ -175,6 +181,9 @@ func newBetListCmd(a *app) *cobra.Command {
 			}
 			if cmd.Flags().Changed("min-edge") {
 				params.MinEdge = &minEdge
+			}
+			if cmd.Flags().Changed("live") {
+				params.IsLive = &live
 			}
 			if from != "" {
 				t, err := parseDateTime(from)
@@ -235,6 +244,7 @@ func newBetListCmd(a *app) *cobra.Command {
 	flags.StringVar(&from, "from", "", "start date (YYYY-MM-DD or RFC 3339), inclusive")
 	flags.StringVar(&to, "to", "", "end date (YYYY-MM-DD or RFC 3339), inclusive")
 	flags.IntVar(&limit, "limit", 0, "max results")
+	flags.BoolVar(&live, "live", false, "only live bets (--live=false for pregame only)")
 	return cmd
 }
 

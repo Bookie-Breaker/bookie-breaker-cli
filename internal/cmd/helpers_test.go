@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"net/http"
 	"os"
@@ -27,6 +28,13 @@ type cliResult struct {
 // env keys override service URLs (AGENT_URL etc.).
 func runBB(t *testing.T, env map[string]string, args ...string) cliResult {
 	t.Helper()
+	return runBBContext(t, context.Background(), env, args...)
+}
+
+// runBBContext is runBB with a caller-supplied context, for commands
+// whose loops exit on context cancellation (bb live --watch).
+func runBBContext(t *testing.T, ctx context.Context, env map[string]string, args ...string) cliResult {
+	t.Helper()
 
 	// Keep the developer's real config and env out of the test.
 	t.Setenv("XDG_CONFIG_HOME", t.TempDir())
@@ -41,6 +49,7 @@ func runBB(t *testing.T, env map[string]string, args ...string) cliResult {
 	}
 
 	root := NewRootCmd()
+	root.SetContext(ctx)
 	var out, errOut bytes.Buffer
 	root.SetOut(&out)
 	root.SetErr(&errOut)

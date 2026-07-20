@@ -185,6 +185,38 @@ func TestBetPlaceExplicitIdempotencyKeyAndJSON(t *testing.T) {
 	mustJSONEqual(t, res.stdout, placedBetFixture())
 }
 
+// TestBetPlaceLive verifies --live forwards is_live: true in the body,
+// and that the field is omitted entirely without the flag (TestBetPlace
+// bodies never carry is_live).
+func TestBetPlaceLive(t *testing.T) {
+	var gotBody map[string]any
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		raw, _ := io.ReadAll(r.Body)
+		if err := json.Unmarshal(raw, &gotBody); err != nil {
+			t.Errorf("request body not JSON: %v", err)
+		}
+		writeEnvelope(t, w, http.StatusCreated, placedBetFixture())
+	}))
+	defer srv.Close()
+
+	res := runBB(t, map[string]string{"BOOKIE_EMULATOR_URL": srv.URL},
+		"bet", "place", "--live",
+		"--game", testGameID,
+		"--market", "SPREAD",
+		"--selection", "PHI -2.5",
+		"--side", "home",
+		"--stake", "1.5",
+		"--prob", "0.56",
+		"--edge", "3.6",
+	)
+	if res.code != api.ExitOK {
+		t.Fatalf("exit code = %d, stderr: %s", res.code, res.stderr)
+	}
+	if got := gotBody["is_live"]; got != true {
+		t.Errorf("body[is_live] = %v (%T), want true", got, got)
+	}
+}
+
 func TestBetPlaceMissingRequiredFlags(t *testing.T) {
 	res := runBB(t, nil, "bet", "place", "--game", testGameID)
 	if res.code != api.ExitUsage {
@@ -249,6 +281,43 @@ func TestBetList(t *testing.T) {
 		if !strings.Contains(res.stdout, want) {
 			t.Errorf("stdout missing %q:\n%s", want, res.stdout)
 		}
+	}
+}
+
+// TestBetListLive verifies --live forwards ?is_live=true, and that the
+// param is absent without the flag (TestBetList queries never carry it).
+func TestBetListLive(t *testing.T) {
+	var gotQuery map[string][]string
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		gotQuery = r.URL.Query()
+		writePagedEnvelope(t, w, http.StatusOK, []bookieemulator.BetData{placedBetFixture()})
+	}))
+	defer srv.Close()
+
+	res := runBB(t, map[string]string{"BOOKIE_EMULATOR_URL": srv.URL}, "bet", "list", "--live")
+	if res.code != api.ExitOK {
+		t.Fatalf("exit code = %d, stderr: %s", res.code, res.stderr)
+	}
+	if got := gotQuery["is_live"]; len(got) != 1 || got[0] != "true" {
+		t.Errorf("is_live query = %v, want [true]", got)
+	}
+}
+
+// TestBetListLiveFalse verifies the explicit pregame-only filter.
+func TestBetListLiveFalse(t *testing.T) {
+	var gotQuery map[string][]string
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		gotQuery = r.URL.Query()
+		writePagedEnvelope(t, w, http.StatusOK, []bookieemulator.BetData{placedBetFixture()})
+	}))
+	defer srv.Close()
+
+	res := runBB(t, map[string]string{"BOOKIE_EMULATOR_URL": srv.URL}, "bet", "list", "--live=false")
+	if res.code != api.ExitOK {
+		t.Fatalf("exit code = %d, stderr: %s", res.code, res.stderr)
+	}
+	if got := gotQuery["is_live"]; len(got) != 1 || got[0] != "false" {
+		t.Errorf("is_live query = %v, want [false]", got)
 	}
 }
 
