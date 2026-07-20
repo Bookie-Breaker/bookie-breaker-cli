@@ -39,6 +39,9 @@ func newBetPlaceCmd(a *app) *cobra.Command {
 		reason         string
 		idempotencyKey string
 		live           bool
+		player         string
+		stat           string
+		propType       string
 	)
 
 	cmd := &cobra.Command{
@@ -87,6 +90,19 @@ func newBetPlaceCmd(a *app) *cobra.Command {
 			if live {
 				body.IsLive = &live
 			}
+			if player != "" {
+				body.PlayerExternalId = &player
+			}
+			if stat != "" {
+				body.StatType = &stat
+			}
+			if propType != "" {
+				pt := bookieemulator.PlaceBetRequestPropType(strings.ToUpper(propType))
+				if pt != bookieemulator.OVERUNDER && pt != bookieemulator.YESNO {
+					return &api.UsageError{Err: fmt.Errorf("invalid --prop-type %q: must be OVER_UNDER or YES_NO", propType)}
+				}
+				body.PropType = &pt
+			}
 			if idempotencyKey == "" {
 				idempotencyKey = uuid.New().String()
 			}
@@ -125,7 +141,7 @@ func newBetPlaceCmd(a *app) *cobra.Command {
 
 	flags := cmd.Flags()
 	flags.StringVar(&game, "game", "", "game UUID (required)")
-	flags.StringVar(&market, "market", "", "market type: SPREAD, TOTAL, MONEYLINE (required)")
+	flags.StringVar(&market, "market", "", "market type: SPREAD, TOTAL, MONEYLINE, PLAYER_PROP (required)")
 	flags.StringVar(&selection, "selection", "", "selection (required)")
 	flags.StringVar(&side, "side", "", "side: HOME, AWAY, DRAW, OVER, UNDER (required; DRAW only on MONEYLINE)")
 	flags.Float64Var(&stake, "stake", 0, "stake in units (required)")
@@ -138,6 +154,9 @@ func newBetPlaceCmd(a *app) *cobra.Command {
 	flags.StringVar(&reason, "reason", "", "reasoning note")
 	flags.StringVar(&idempotencyKey, "idempotency-key", "", "idempotency key (default: fresh UUID)")
 	flags.BoolVar(&live, "live", false, "place as an in-game (live) bet")
+	flags.StringVar(&player, "player", "", "player external id for prop bets (e.g. erling-haaland)")
+	flags.StringVar(&stat, "stat", "", "canonical prop stat key (e.g. player_shots_on_target)")
+	flags.StringVar(&propType, "prop-type", "", "prop type: OVER_UNDER or YES_NO")
 
 	for _, f := range []string{"game", "market", "selection", "side", "stake", "prob", "edge"} {
 		_ = cmd.MarkFlagRequired(f)

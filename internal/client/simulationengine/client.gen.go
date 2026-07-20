@@ -24,6 +24,12 @@ const (
 	Partial   BatchDataStatus = "partial"
 )
 
+// Defines values for PlayerPropsEntryTeam.
+const (
+	AWAY PlayerPropsEntryTeam = "AWAY"
+	HOME PlayerPropsEntryTeam = "HOME"
+)
+
 // Defines values for GetSimulationDistributionsApiV1SimSimulationsSimulationIdDistributionsGetParamsDistributionType.
 const (
 	All       GetSimulationDistributionsApiV1SimSimulationsSimulationIdDistributionsGetParamsDistributionType = "all"
@@ -156,6 +162,18 @@ type EnvelopeHealthData struct {
 	Meta Meta       `json:"meta"`
 }
 
+// EnvelopePlayerDistributionsData defines model for Envelope_PlayerDistributionsData_.
+type EnvelopePlayerDistributionsData struct {
+	// Data Per-player stat distributions for one simulation run (Phase 7 Wave 3).
+	//
+	// ``players`` is keyed by statistics-service player UUID. Stat keys are the
+	// canonical Odds API market keys, so downstream services join these to
+	// market lines without translation. Empty when props were requested but no
+	// roster data existed (dormant sports, empty upstream rosters).
+	Data PlayerDistributionsData `json:"data"`
+	Meta Meta                    `json:"meta"`
+}
+
 // EnvelopeSimulationRunData defines model for Envelope_SimulationRunData_.
 type EnvelopeSimulationRunData struct {
 	Data SimulationRunData `json:"data"`
@@ -225,9 +243,45 @@ type Percentiles struct {
 	Total  map[string]int `json:"total"`
 }
 
+// PlayerDistributionsData Per-player stat distributions for one simulation run (Phase 7 Wave 3).
+//
+// “players“ is keyed by statistics-service player UUID. Stat keys are the
+// canonical Odds API market keys, so downstream services join these to
+// market lines without translation. Empty when props were requested but no
+// roster data existed (dormant sports, empty upstream rosters).
+type PlayerDistributionsData struct {
+	GameId              string                      `json:"game_id"`
+	IterationsCompleted int                         `json:"iterations_completed"`
+	Players             map[string]PlayerPropsEntry `json:"players"`
+	SimulationRunId     string                      `json:"simulation_run_id"`
+}
+
+// PlayerPropsEntry One player's captured stats keyed by canonical stat key (ADR-029).
+type PlayerPropsEntry struct {
+	Name  string                     `json:"name"`
+	Stats map[string]PlayerStatBlock `json:"stats"`
+	Team  PlayerPropsEntryTeam       `json:"team"`
+}
+
+// PlayerPropsEntryTeam defines model for PlayerPropsEntry.Team.
+type PlayerPropsEntryTeam string
+
+// PlayerStatBlock Distribution plus market-facing probabilities for one player stat (Phase 7 Wave 3).
+//
+// OVER_UNDER stats carry “over_probabilities“ — P(count > line) for
+// half-point lines around the mean (monotonically non-increasing in the
+// line). YES_NO stats (“player_goal_scorer_anytime“, “player_anytime_td“)
+// carry “yes_probability“ = P(count > 0) instead of a line grid.
+type PlayerStatBlock struct {
+	Distribution      Distribution        `json:"distribution"`
+	OverProbabilities *map[string]float32 `json:"over_probabilities"`
+	YesProbability    *float32            `json:"yes_probability"`
+}
+
 // SimulationConfigIn defines model for SimulationConfigIn.
 type SimulationConfigIn struct {
 	ConvergenceThreshold *float32                `json:"convergence_threshold,omitempty"`
+	IncludePlayerProps   *bool                   `json:"include_player_props,omitempty"`
 	Iterations           *int                    `json:"iterations,omitempty"`
 	PluginConfig         *map[string]interface{} `json:"plugin_config,omitempty"`
 	RandomSeed           *int                    `json:"random_seed"`
@@ -344,6 +398,15 @@ type GetSimulationDistributionsApiV1SimSimulationsSimulationIdDistributionsGetPa
 
 // GetSimulationDistributionsApiV1SimSimulationsSimulationIdDistributionsGetParamsDistributionType defines parameters for GetSimulationDistributionsApiV1SimSimulationsSimulationIdDistributionsGet.
 type GetSimulationDistributionsApiV1SimSimulationsSimulationIdDistributionsGetParamsDistributionType string
+
+// GetSimulationPlayerDistributionsApiV1SimSimulationsSimulationIdPlayerDistributionsGetParams defines parameters for GetSimulationPlayerDistributionsApiV1SimSimulationsSimulationIdPlayerDistributionsGet.
+type GetSimulationPlayerDistributionsApiV1SimSimulationsSimulationIdPlayerDistributionsGetParams struct {
+	// PlayerId Restrict to one player (statistics-service player UUID).
+	PlayerId *string `form:"player_id,omitempty" json:"player_id,omitempty"`
+
+	// StatType Restrict to one canonical stat key (e.g. 'player_points', 'player_shots').
+	StatType *string `form:"stat_type,omitempty" json:"stat_type,omitempty"`
+}
 
 // CreateSimulationApiV1SimSimulationsPostJSONRequestBody defines body for CreateSimulationApiV1SimSimulationsPost for application/json ContentType.
 type CreateSimulationApiV1SimSimulationsPostJSONRequestBody = SimulationRequest
@@ -510,6 +573,9 @@ type ClientInterface interface {
 
 	// GetSimulationDistributionsApiV1SimSimulationsSimulationIdDistributionsGet request
 	GetSimulationDistributionsApiV1SimSimulationsSimulationIdDistributionsGet(ctx context.Context, simulationId string, params *GetSimulationDistributionsApiV1SimSimulationsSimulationIdDistributionsGetParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetSimulationPlayerDistributionsApiV1SimSimulationsSimulationIdPlayerDistributionsGet request
+	GetSimulationPlayerDistributionsApiV1SimSimulationsSimulationIdPlayerDistributionsGet(ctx context.Context, simulationId string, params *GetSimulationPlayerDistributionsApiV1SimSimulationsSimulationIdPlayerDistributionsGetParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
 func (c *Client) GetLatestSimulationApiV1SimGamesGameIdLatestGet(ctx context.Context, gameId string, params *GetLatestSimulationApiV1SimGamesGameIdLatestGetParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -610,6 +676,18 @@ func (c *Client) GetSimulationCorrelationsApiV1SimSimulationsSimulationIdCorrela
 
 func (c *Client) GetSimulationDistributionsApiV1SimSimulationsSimulationIdDistributionsGet(ctx context.Context, simulationId string, params *GetSimulationDistributionsApiV1SimSimulationsSimulationIdDistributionsGetParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetSimulationDistributionsApiV1SimSimulationsSimulationIdDistributionsGetRequest(c.Server, simulationId, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetSimulationPlayerDistributionsApiV1SimSimulationsSimulationIdPlayerDistributionsGet(ctx context.Context, simulationId string, params *GetSimulationPlayerDistributionsApiV1SimSimulationsSimulationIdPlayerDistributionsGetParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetSimulationPlayerDistributionsApiV1SimSimulationsSimulationIdPlayerDistributionsGetRequest(c.Server, simulationId, params)
 	if err != nil {
 		return nil, err
 	}
@@ -960,6 +1038,78 @@ func NewGetSimulationDistributionsApiV1SimSimulationsSimulationIdDistributionsGe
 	return req, nil
 }
 
+// NewGetSimulationPlayerDistributionsApiV1SimSimulationsSimulationIdPlayerDistributionsGetRequest generates requests for GetSimulationPlayerDistributionsApiV1SimSimulationsSimulationIdPlayerDistributionsGet
+func NewGetSimulationPlayerDistributionsApiV1SimSimulationsSimulationIdPlayerDistributionsGetRequest(server string, simulationId string, params *GetSimulationPlayerDistributionsApiV1SimSimulationsSimulationIdPlayerDistributionsGetParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "simulation_id", runtime.ParamLocationPath, simulationId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/sim/simulations/%s/player-distributions", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.PlayerId != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "player_id", runtime.ParamLocationQuery, *params.PlayerId); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.StatType != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "stat_type", runtime.ParamLocationQuery, *params.StatType); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 func (c *Client) applyEditors(ctx context.Context, req *http.Request, additionalEditors []RequestEditorFn) error {
 	for _, r := range c.RequestEditors {
 		if err := r(ctx, req); err != nil {
@@ -1027,6 +1177,9 @@ type ClientWithResponsesInterface interface {
 
 	// GetSimulationDistributionsApiV1SimSimulationsSimulationIdDistributionsGetWithResponse request
 	GetSimulationDistributionsApiV1SimSimulationsSimulationIdDistributionsGetWithResponse(ctx context.Context, simulationId string, params *GetSimulationDistributionsApiV1SimSimulationsSimulationIdDistributionsGetParams, reqEditors ...RequestEditorFn) (*GetSimulationDistributionsApiV1SimSimulationsSimulationIdDistributionsGetResponse, error)
+
+	// GetSimulationPlayerDistributionsApiV1SimSimulationsSimulationIdPlayerDistributionsGetWithResponse request
+	GetSimulationPlayerDistributionsApiV1SimSimulationsSimulationIdPlayerDistributionsGetWithResponse(ctx context.Context, simulationId string, params *GetSimulationPlayerDistributionsApiV1SimSimulationsSimulationIdPlayerDistributionsGetParams, reqEditors ...RequestEditorFn) (*GetSimulationPlayerDistributionsApiV1SimSimulationsSimulationIdPlayerDistributionsGetResponse, error)
 }
 
 type GetLatestSimulationApiV1SimGamesGameIdLatestGetResponse struct {
@@ -1189,6 +1342,29 @@ func (r GetSimulationDistributionsApiV1SimSimulationsSimulationIdDistributionsGe
 	return 0
 }
 
+type GetSimulationPlayerDistributionsApiV1SimSimulationsSimulationIdPlayerDistributionsGetResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *EnvelopePlayerDistributionsData
+	JSON422      *HTTPValidationError
+}
+
+// Status returns HTTPResponse.Status
+func (r GetSimulationPlayerDistributionsApiV1SimSimulationsSimulationIdPlayerDistributionsGetResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetSimulationPlayerDistributionsApiV1SimSimulationsSimulationIdPlayerDistributionsGetResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 // GetLatestSimulationApiV1SimGamesGameIdLatestGetWithResponse request returning *GetLatestSimulationApiV1SimGamesGameIdLatestGetResponse
 func (c *ClientWithResponses) GetLatestSimulationApiV1SimGamesGameIdLatestGetWithResponse(ctx context.Context, gameId string, params *GetLatestSimulationApiV1SimGamesGameIdLatestGetParams, reqEditors ...RequestEditorFn) (*GetLatestSimulationApiV1SimGamesGameIdLatestGetResponse, error) {
 	rsp, err := c.GetLatestSimulationApiV1SimGamesGameIdLatestGet(ctx, gameId, params, reqEditors...)
@@ -1266,6 +1442,15 @@ func (c *ClientWithResponses) GetSimulationDistributionsApiV1SimSimulationsSimul
 		return nil, err
 	}
 	return ParseGetSimulationDistributionsApiV1SimSimulationsSimulationIdDistributionsGetResponse(rsp)
+}
+
+// GetSimulationPlayerDistributionsApiV1SimSimulationsSimulationIdPlayerDistributionsGetWithResponse request returning *GetSimulationPlayerDistributionsApiV1SimSimulationsSimulationIdPlayerDistributionsGetResponse
+func (c *ClientWithResponses) GetSimulationPlayerDistributionsApiV1SimSimulationsSimulationIdPlayerDistributionsGetWithResponse(ctx context.Context, simulationId string, params *GetSimulationPlayerDistributionsApiV1SimSimulationsSimulationIdPlayerDistributionsGetParams, reqEditors ...RequestEditorFn) (*GetSimulationPlayerDistributionsApiV1SimSimulationsSimulationIdPlayerDistributionsGetResponse, error) {
+	rsp, err := c.GetSimulationPlayerDistributionsApiV1SimSimulationsSimulationIdPlayerDistributionsGet(ctx, simulationId, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetSimulationPlayerDistributionsApiV1SimSimulationsSimulationIdPlayerDistributionsGetResponse(rsp)
 }
 
 // ParseGetLatestSimulationApiV1SimGamesGameIdLatestGetResponse parses an HTTP response from a GetLatestSimulationApiV1SimGamesGameIdLatestGetWithResponse call
@@ -1475,6 +1660,39 @@ func ParseGetSimulationDistributionsApiV1SimSimulationsSimulationIdDistributions
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest EnvelopeDistributionsData
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest HTTPValidationError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetSimulationPlayerDistributionsApiV1SimSimulationsSimulationIdPlayerDistributionsGetResponse parses an HTTP response from a GetSimulationPlayerDistributionsApiV1SimSimulationsSimulationIdPlayerDistributionsGetWithResponse call
+func ParseGetSimulationPlayerDistributionsApiV1SimSimulationsSimulationIdPlayerDistributionsGetResponse(rsp *http.Response) (*GetSimulationPlayerDistributionsApiV1SimSimulationsSimulationIdPlayerDistributionsGetResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetSimulationPlayerDistributionsApiV1SimSimulationsSimulationIdPlayerDistributionsGetResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest EnvelopePlayerDistributionsData
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
