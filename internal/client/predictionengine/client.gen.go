@@ -23,8 +23,10 @@ const (
 	PredictionDetailDataSideAWAY  PredictionDetailDataSide = "AWAY"
 	PredictionDetailDataSideDRAW  PredictionDetailDataSide = "DRAW"
 	PredictionDetailDataSideHOME  PredictionDetailDataSide = "HOME"
+	PredictionDetailDataSideNO    PredictionDetailDataSide = "NO"
 	PredictionDetailDataSideOVER  PredictionDetailDataSide = "OVER"
 	PredictionDetailDataSideUNDER PredictionDetailDataSide = "UNDER"
+	PredictionDetailDataSideYES   PredictionDetailDataSide = "YES"
 )
 
 // Defines values for PredictionItemSide.
@@ -32,8 +34,10 @@ const (
 	PredictionItemSideAWAY  PredictionItemSide = "AWAY"
 	PredictionItemSideDRAW  PredictionItemSide = "DRAW"
 	PredictionItemSideHOME  PredictionItemSide = "HOME"
+	PredictionItemSideNO    PredictionItemSide = "NO"
 	PredictionItemSideOVER  PredictionItemSide = "OVER"
 	PredictionItemSideUNDER PredictionItemSide = "UNDER"
+	PredictionItemSideYES   PredictionItemSide = "YES"
 )
 
 // Defines values for PredictionRequestMarketTypes.
@@ -41,6 +45,14 @@ const (
 	MONEYLINE PredictionRequestMarketTypes = "MONEYLINE"
 	SPREAD    PredictionRequestMarketTypes = "SPREAD"
 	TOTAL     PredictionRequestMarketTypes = "TOTAL"
+)
+
+// Defines values for PropRequestSide.
+const (
+	NO    PropRequestSide = "NO"
+	OVER  PropRequestSide = "OVER"
+	UNDER PropRequestSide = "UNDER"
+	YES   PropRequestSide = "YES"
 )
 
 // EdgeItem defines model for EdgeItem.
@@ -198,15 +210,18 @@ type PredictionDetailData struct {
 	Id                   string             `json:"id"`
 	MarketType           string             `json:"market_type"`
 	ModelVersionId       string             `json:"model_version_id"`
+	PlayerExternalId     *string            `json:"player_external_id"`
 	PredictedProbability float32            `json:"predicted_probability"`
+	PropLine             *float32           `json:"prop_line"`
 	Selection            string             `json:"selection"`
 
-	// Side Selection side (HOME, AWAY, DRAW, OVER, UNDER). Null for predictions created before Phase 6.
+	// Side Selection side (HOME, AWAY, DRAW, OVER, UNDER, YES, NO). Null for predictions created before Phase 6.
 	Side                  *PredictionDetailDataSide `json:"side"`
 	SimulationProbability *float32                  `json:"simulation_probability"`
+	StatType              *string                   `json:"stat_type"`
 }
 
-// PredictionDetailDataSide Selection side (HOME, AWAY, DRAW, OVER, UNDER). Null for predictions created before Phase 6.
+// PredictionDetailDataSide Selection side (HOME, AWAY, DRAW, OVER, UNDER, YES, NO). Null for predictions created before Phase 6.
 type PredictionDetailDataSide string
 
 // PredictionGroupData defines model for PredictionGroupData.
@@ -242,26 +257,56 @@ type PredictionItem struct {
 	Id                   string             `json:"id"`
 	MarketType           string             `json:"market_type"`
 	ModelVersionId       string             `json:"model_version_id"`
+	PlayerExternalId     *string            `json:"player_external_id"`
 	PredictedProbability float32            `json:"predicted_probability"`
+	PropLine             *float32           `json:"prop_line"`
 	Selection            string             `json:"selection"`
 
-	// Side Selection side (HOME, AWAY, DRAW, OVER, UNDER). Null for predictions created before Phase 6.
+	// Side Selection side (HOME, AWAY, DRAW, OVER, UNDER, YES, NO). Null for predictions created before Phase 6.
 	Side                  *PredictionItemSide `json:"side"`
 	SimulationProbability *float32            `json:"simulation_probability"`
+	StatType              *string             `json:"stat_type"`
 }
 
-// PredictionItemSide Selection side (HOME, AWAY, DRAW, OVER, UNDER). Null for predictions created before Phase 6.
+// PredictionItemSide Selection side (HOME, AWAY, DRAW, OVER, UNDER, YES, NO). Null for predictions created before Phase 6.
 type PredictionItemSide string
 
 // PredictionRequest defines model for PredictionRequest.
 type PredictionRequest struct {
-	GameId          string                          `json:"game_id"`
-	MarketTypes     *[]PredictionRequestMarketTypes `json:"market_types,omitempty"`
-	SimulationRunId string                          `json:"simulation_run_id"`
+	GameId      string                          `json:"game_id"`
+	MarketTypes *[]PredictionRequestMarketTypes `json:"market_types,omitempty"`
+
+	// Props Player props to predict (requires a simulation run captured with player stats).
+	Props           *[]PropRequest `json:"props,omitempty"`
+	SimulationRunId string         `json:"simulation_run_id"`
 }
 
 // PredictionRequestMarketTypes defines model for PredictionRequest.MarketTypes.
 type PredictionRequestMarketTypes string
+
+// PropRequest One requested player prop (Phase 7 Wave 3).
+//
+// line is required for count/yardage stats and must exactly match a
+// half-step line in the simulation's over grid; it stays None for yes/no
+// stats. side None emits both OVER and UNDER rows (or the single YES row
+// for yes/no stats).
+type PropRequest struct {
+	// Line Prop line (half-step); null for yes/no stats.
+	Line *float32 `json:"line"`
+
+	// PlayerExternalId The statistics-service player UUID (as a string).
+	PlayerExternalId string  `json:"player_external_id"`
+	PlayerName       *string `json:"player_name"`
+
+	// Side Requested side; null emits both sides (or YES).
+	Side *PropRequestSide `json:"side"`
+
+	// StatType Canonical prop stat key (Odds API market key), e.g. player_points.
+	StatType string `json:"stat_type"`
+}
+
+// PropRequestSide Requested side; null emits both sides (or YES).
+type PropRequestSide string
 
 // RetrainConfig defines model for RetrainConfig.
 type RetrainConfig struct {

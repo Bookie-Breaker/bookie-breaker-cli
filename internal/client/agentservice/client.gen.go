@@ -159,17 +159,21 @@ type EdgeListItem struct {
 	HomeTeam             *string  `json:"home_team"`
 	Id                   string   `json:"id"`
 	ImpliedProbability   float32  `json:"implied_probability"`
+	IsLive               *bool    `json:"is_live,omitempty"`
 	IsStale              bool     `json:"is_stale"`
 	KellyFraction        float32  `json:"kelly_fraction"`
 	League               string   `json:"league"`
 	MarketType           string   `json:"market_type"`
 	OddsAmerican         int      `json:"odds_american"`
 	PaperBetId           *string  `json:"paper_bet_id"`
+	PlayerExternalId     *string  `json:"player_external_id"`
 	PredictedProbability float32  `json:"predicted_probability"`
+	PropType             *string  `json:"prop_type"`
 	RecommendedStake     float32  `json:"recommended_stake"`
 	ScheduledStart       string   `json:"scheduled_start"`
 	Selection            string   `json:"selection"`
 	SportsbookKey        string   `json:"sportsbook_key"`
+	StatType             *string  `json:"stat_type"`
 }
 
 // EdgePaperBet defines model for EdgePaperBet.

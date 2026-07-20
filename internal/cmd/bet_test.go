@@ -217,6 +217,95 @@ func TestBetPlaceLive(t *testing.T) {
 	}
 }
 
+// TestBetPlacePropFlags verifies --player, --stat, and --prop-type wire
+// the prop fields into the request body so a prop edge can be manually
+// bet.
+func TestBetPlacePropFlags(t *testing.T) {
+	var gotBody map[string]any
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		raw, _ := io.ReadAll(r.Body)
+		if err := json.Unmarshal(raw, &gotBody); err != nil {
+			t.Errorf("request body not JSON: %v", err)
+		}
+		writeEnvelope(t, w, http.StatusCreated, placedBetFixture())
+	}))
+	defer srv.Close()
+
+	res := runBB(t, map[string]string{"BOOKIE_EMULATOR_URL": srv.URL},
+		"bet", "place",
+		"--game", testGameID,
+		"--market", "PLAYER_PROP",
+		"--selection", "OVER 2.5",
+		"--side", "over",
+		"--stake", "0.5",
+		"--prob", "0.58",
+		"--edge", "5.6",
+		"--player", "erling-haaland",
+		"--stat", "player_shots_on_target",
+		"--prop-type", "over_under",
+	)
+	if res.code != api.ExitOK {
+		t.Fatalf("exit code = %d, stderr: %s", res.code, res.stderr)
+	}
+
+	wantBody := map[string]any{
+		"market_type":        "PLAYER_PROP",
+		"player_external_id": "erling-haaland",
+		"stat_type":          "player_shots_on_target",
+		"prop_type":          "OVER_UNDER",
+	}
+	for key, want := range wantBody {
+		if got := gotBody[key]; got != want {
+			t.Errorf("body[%s] = %v (%T), want %v", key, got, got, want)
+		}
+	}
+}
+
+// TestBetPlacePropFlagsOmitted verifies the prop fields stay null when
+// the flags are not passed (additive change: game-market bets are
+// untouched).
+func TestBetPlacePropFlagsOmitted(t *testing.T) {
+	var gotBody map[string]any
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		raw, _ := io.ReadAll(r.Body)
+		if err := json.Unmarshal(raw, &gotBody); err != nil {
+			t.Errorf("request body not JSON: %v", err)
+		}
+		writeEnvelope(t, w, http.StatusCreated, placedBetFixture())
+	}))
+	defer srv.Close()
+
+	res := runBB(t, map[string]string{"BOOKIE_EMULATOR_URL": srv.URL},
+		"bet", "place",
+		"--game", testGameID, "--market", "SPREAD", "--selection", "PHI -2.5",
+		"--side", "home", "--stake", "1.5", "--prob", "0.56", "--edge", "3.6",
+	)
+	if res.code != api.ExitOK {
+		t.Fatalf("exit code = %d, stderr: %s", res.code, res.stderr)
+	}
+
+	for _, key := range []string{"player_external_id", "stat_type", "prop_type"} {
+		if got := gotBody[key]; got != nil {
+			t.Errorf("body[%s] = %v, want null", key, got)
+		}
+	}
+}
+
+func TestBetPlaceInvalidPropType(t *testing.T) {
+	res := runBB(t, nil,
+		"bet", "place",
+		"--game", testGameID, "--market", "PLAYER_PROP", "--selection", "OVER 2.5",
+		"--side", "over", "--stake", "0.5", "--prob", "0.58", "--edge", "5.6",
+		"--prop-type", "MAYBE",
+	)
+	if res.code != api.ExitUsage {
+		t.Fatalf("exit code = %d, want %d, stderr: %s", res.code, api.ExitUsage, res.stderr)
+	}
+	if !strings.Contains(res.stderr, "must be OVER_UNDER or YES_NO") {
+		t.Errorf("stderr = %q", res.stderr)
+	}
+}
+
 func TestBetPlaceMissingRequiredFlags(t *testing.T) {
 	res := runBB(t, nil, "bet", "place", "--game", testGameID)
 	if res.code != api.ExitUsage {
