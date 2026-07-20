@@ -3,6 +3,11 @@
 `bb` is the BookieBreaker terminal interface for viewing edges, predictions, lines, paper bets,
 and performance, built with Cobra and Lip Gloss.
 
+Workflow-oriented guides live in the
+[operator playbooks](https://github.com/Bookie-Breaker/bookie-breaker-docs/blob/main/playbooks/README.md) —
+especially [03 — Finding and Betting Edges](https://github.com/Bookie-Breaker/bookie-breaker-docs/blob/main/playbooks/03-finding-and-betting-edges.md)
+and [04 — Parlays, Props, and Live](https://github.com/Bookie-Breaker/bookie-breaker-docs/blob/main/playbooks/04-parlays-props-and-live.md).
+
 ## Install
 
 ```bash
@@ -35,6 +40,7 @@ prediction_engine_url: http://localhost:8004
 default_league: NFL
 format: table # or json
 timeout: 10s
+analysis_timeout: 120s # LLM calls made by `bb ask`
 ```
 
 ### Environment variables
@@ -86,6 +92,29 @@ bb lines <game_id> --market SPREAD --book draftkings --side home
 bb lines <game_id> --movement --market SPREAD --selection "PHI -2.5"
 ```
 
+### bb live
+
+Show current in-game lines (live only) grouped by game, plus live edges detected by the agent.
+With `--watch N` it re-polls every N seconds (minimum 5) and re-renders until Ctrl-C.
+
+```bash
+bb live --league EPL
+bb live --watch 10
+```
+
+Requires a live feed (`SHARP_API_URL` or the sharp-stub); live edges additionally require
+`LIVE_EDGES_ENABLED` on the agent.
+
+### bb props
+
+List currently detected PLAYER_PROP edges, highest edge first, or raw prop lines from the lines
+service with `--lines` (grouped by game, then player, then stat).
+
+```bash
+bb props --league EPL
+bb props --lines
+```
+
 ### bb bet
 
 Place and list paper bets against the bookie-emulator.
@@ -97,7 +126,25 @@ bb bet list --status graded --result WIN --min-edge 2 --from 2026-07-01
 ```
 
 `bet place` sends an `X-Idempotency-Key` header (a fresh UUID unless `--idempotency-key` is
-given), so retries never double-place a bet.
+given), so retries never double-place a bet. Prop bets add `--player`, `--stat`, and
+`--prop-type OVER_UNDER|YES_NO`; `--live` marks an in-game bet.
+
+### bb parlay
+
+Evaluate, place, and inspect parlays with correlation-aware math. Legs are
+`game_ext:MARKET:SIDE[:line]`, repeated 2–6 times; team markets only (`MONEYLINE`, `SPREAD`,
+`TOTAL`) with sides `HOME`, `AWAY`, `DRAW`, `OVER`, `UNDER`.
+
+```bash
+bb parlay evaluate --leg nba-bos-lal-20260721:MONEYLINE:HOME \
+  --leg nba-den-okc-20260721:TOTAL:OVER:224.5 --odds 264
+bb parlay place --leg <...> --leg <...> --stake 1 --yes
+bb parlay show <bet_id>
+```
+
+`--odds` is the offered SGP price in American odds (defaults to the product of leg decimals);
+`evaluate --persist` stores the evaluation even below the EV threshold. `place` confirms
+interactively unless `--yes` is given and always sends a fresh idempotency key.
 
 ### bb performance
 
