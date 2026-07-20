@@ -1,5 +1,11 @@
 # bookie-breaker-cli
 
+[![CI](https://img.shields.io/github/actions/workflow/status/Bookie-Breaker/bookie-breaker-cli/ci.yml?branch=main&label=CI&logo=githubactions&logoColor=white)](https://github.com/Bookie-Breaker/bookie-breaker-cli/actions/workflows/ci.yml)
+[![coverage](https://img.shields.io/codecov/c/github/Bookie-Breaker/bookie-breaker-cli?logo=codecov&logoColor=white)](https://app.codecov.io/gh/Bookie-Breaker/bookie-breaker-cli)
+![Go](https://img.shields.io/badge/Go-1.25-00ADD8?logo=go&logoColor=white)
+![Cobra](https://img.shields.io/badge/Cobra-CLI-7B42BC)
+![Lip_Gloss](https://img.shields.io/badge/Lip_Gloss-TUI-FF5F87)
+
 `bb` is the BookieBreaker terminal interface for viewing edges, predictions, lines, paper bets,
 and performance, built with Cobra and Lip Gloss.
 
