@@ -2,10 +2,14 @@ package cmd
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
+
+	"github.com/Bookie-Breaker/bookie-breaker-cli/internal/api"
+	"github.com/Bookie-Breaker/bookie-breaker-cli/internal/client/agentservice"
 )
 
 const (
@@ -169,5 +173,46 @@ func TestAskAPIErrorExitCode(t *testing.T) {
 	}
 	if !strings.Contains(result.stderr, "LLM analysis failed") {
 		t.Errorf("stderr missing upstream message: %q", result.stderr)
+	}
+}
+
+func TestResolveAnalysisType(t *testing.T) {
+	cases := []struct {
+		name     string
+		override string
+		gameID   string
+		edgeID   string
+		want     agentservice.AnalysisRequestAnalysisType
+	}{
+		{"explicit preview", "game_preview", "", "", agentservice.GAMEPREVIEW},
+		{"explicit breakdown", "EDGE_BREAKDOWN", "", "", agentservice.EDGEBREAKDOWN},
+		{"explicit review", "performance_review", "", "", agentservice.PERFORMANCEREVIEW},
+		{"edge scope wins", "", askGameID, testEdgeID, agentservice.EDGEBREAKDOWN},
+		{"game scope", "", askGameID, "", agentservice.GAMEPREVIEW},
+		{"no scope", "", "", "", agentservice.PERFORMANCEREVIEW},
+	}
+	for _, tc := range cases {
+		got, err := resolveAnalysisType(tc.override, tc.gameID, tc.edgeID)
+		if err != nil {
+			t.Errorf("%s: resolveAnalysisType: %v", tc.name, err)
+			continue
+		}
+		if got != tc.want {
+			t.Errorf("%s: resolveAnalysisType = %q, want %q", tc.name, got, tc.want)
+		}
+	}
+}
+
+func TestResolveAnalysisTypeInvalid(t *testing.T) {
+	_, err := resolveAnalysisType("VIBES", "", "")
+	if err == nil {
+		t.Fatal("resolveAnalysisType(VIBES) = nil error, want usage error")
+	}
+	var usageErr *api.UsageError
+	if !errors.As(err, &usageErr) {
+		t.Errorf("error type = %T, want *api.UsageError", err)
+	}
+	if !strings.Contains(err.Error(), "invalid --type") {
+		t.Errorf("error = %q, want invalid --type message", err)
 	}
 }

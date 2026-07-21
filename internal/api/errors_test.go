@@ -2,7 +2,9 @@ package api
 
 import (
 	"bytes"
+	"context"
 	"errors"
+	"fmt"
 	"net"
 	"net/url"
 	"os"
@@ -61,6 +63,17 @@ func TestErrorFromResponseOpaqueBody(t *testing.T) {
 	}
 }
 
+func TestUsageError(t *testing.T) {
+	inner := errors.New("bad flag")
+	usageErr := &UsageError{Err: inner}
+	if got := usageErr.Error(); got != "bad flag" {
+		t.Errorf("Error() = %q", got)
+	}
+	if !errors.Is(usageErr, inner) {
+		t.Error("errors.Is(usageErr, inner) = false, want unwrap to inner")
+	}
+}
+
 func TestExitCode(t *testing.T) {
 	cases := []struct {
 		name string
@@ -68,6 +81,7 @@ func TestExitCode(t *testing.T) {
 		want int
 	}{
 		{"nil", nil, ExitOK},
+		{"deadline exceeded", fmt.Errorf("fetching edges: %w", context.DeadlineExceeded), ExitConnection},
 		{"api error", &APIError{StatusCode: 404}, ExitAPIError},
 		{"usage error", &UsageError{Err: errors.New("bad flag")}, ExitUsage},
 		{"cobra unknown command", errors.New(`unknown command "bogus" for "bb"`), ExitUsage},

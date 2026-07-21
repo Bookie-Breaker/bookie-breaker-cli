@@ -3,6 +3,7 @@ package config
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 )
@@ -49,6 +50,24 @@ func TestLoadDefaults(t *testing.T) {
 	}
 	if *cfg != want {
 		t.Errorf("Load() = %+v, want %+v", *cfg, want)
+	}
+}
+
+func TestLoadUnreadableFile(t *testing.T) {
+	clearEnv(t)
+
+	// A directory path fails on read with an error that is not ErrNotExist.
+	if _, err := Load(t.TempDir()); err == nil || !strings.Contains(err.Error(), "reading config file") {
+		t.Errorf("Load(directory) error = %v, want reading config file error", err)
+	}
+}
+
+func TestLoadBadAnalysisTimeout(t *testing.T) {
+	clearEnv(t)
+	path := writeConfig(t, "analysis_timeout: whenever\n")
+
+	if _, err := Load(path); err == nil || !strings.Contains(err.Error(), "parsing analysis_timeout") {
+		t.Errorf("Load with bad analysis_timeout: error = %v", err)
 	}
 }
 

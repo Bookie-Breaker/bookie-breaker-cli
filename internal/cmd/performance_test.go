@@ -9,6 +9,7 @@ import (
 
 	"github.com/Bookie-Breaker/bookie-breaker-cli/internal/api"
 	"github.com/Bookie-Breaker/bookie-breaker-cli/internal/client/bookieemulator"
+	"github.com/Bookie-Breaker/bookie-breaker-cli/internal/ui"
 )
 
 func performanceFixture() bookieemulator.PerformanceData {
@@ -137,5 +138,23 @@ func TestPerformanceBreakdownInvalid(t *testing.T) {
 	}
 	if !strings.Contains(res.stderr, "invalid --breakdown") {
 		t.Errorf("stderr = %q", res.stderr)
+	}
+}
+
+func TestBrierLabel(t *testing.T) {
+	if got := brierLabel(nil); got != ui.Dash {
+		t.Errorf("brierLabel(nil) = %q, want dash", got)
+	}
+	if got := brierLabel(ptr(float32(0.1875))); got != "0.1875" {
+		t.Errorf("brierLabel = %q, want 0.1875", got)
+	}
+}
+
+func TestEdgePtrLabel(t *testing.T) {
+	if got := edgePtrLabel(nil); got != ui.Dash {
+		t.Errorf("edgePtrLabel(nil) = %q, want dash", got)
+	}
+	if got := edgePtrLabel(ptr(float32(4.2))); got != "+4.2%" {
+		t.Errorf("edgePtrLabel = %q, want +4.2%%", got)
 	}
 }

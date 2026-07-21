@@ -62,8 +62,26 @@ func TestUnits(t *testing.T) {
 	if got := UnitsPtr(nil); got != Dash {
 		t.Errorf("UnitsPtr(nil) = %q, want dash", got)
 	}
+	v := float32(1.25)
+	if got := UnitsPtr(&v); got != "+1.25" {
+		t.Errorf("UnitsPtr(1.25) = %q, want +1.25", got)
+	}
 	if got := Stake(2); got != "2.00" {
 		t.Errorf("Stake(2) = %q, want 2.00", got)
+	}
+}
+
+func TestStringPtr(t *testing.T) {
+	if got := StringPtr(nil); got != Dash {
+		t.Errorf("StringPtr(nil) = %q, want dash", got)
+	}
+	empty := ""
+	if got := StringPtr(&empty); got != Dash {
+		t.Errorf("StringPtr(empty) = %q, want dash", got)
+	}
+	s := "draftkings"
+	if got := StringPtr(&s); got != "draftkings" {
+		t.Errorf("StringPtr = %q, want draftkings", got)
 	}
 }
 
@@ -101,11 +119,76 @@ func TestStylesPlainUnderAscii(t *testing.T) {
 	if got := Green.Render("edge"); got != "edge" {
 		t.Errorf("Green.Render under ascii = %q, want plain text", got)
 	}
-	if got := ColorResult("WIN"); got != "WIN" {
-		t.Errorf("ColorResult(WIN) under ascii = %q", got)
+	if got := Dim("meta"); got != "meta" {
+		t.Errorf("Dim under ascii = %q, want plain text", got)
 	}
-	if got := ColorBySign(-1, "-1.00"); got != "-1.00" {
-		t.Errorf("ColorBySign under ascii = %q", got)
+}
+
+func TestColorResult(t *testing.T) {
+	// Under the ascii profile every branch must pass the text through
+	// unchanged; the cases still walk each result color branch.
+	for _, result := range []string{"WIN", "LOSS", "PENDING", "PUSH"} {
+		if got := ColorResult(result); got != result {
+			t.Errorf("ColorResult(%q) under ascii = %q", result, got)
+		}
+	}
+}
+
+func TestColorBySign(t *testing.T) {
+	cases := []struct {
+		v float64
+		s string
+	}{
+		{1.5, "+1.50"},
+		{-1, "-1.00"},
+		{0, "0.00"},
+	}
+	for _, tc := range cases {
+		if got := ColorBySign(tc.v, tc.s); got != tc.s {
+			t.Errorf("ColorBySign(%v) under ascii = %q, want %q", tc.v, got, tc.s)
+		}
+	}
+}
+
+func TestPrintln(t *testing.T) {
+	var buf strings.Builder
+	Println(&buf, "hello", 42)
+	if got := buf.String(); got != "hello 42\n" {
+		t.Errorf("Println wrote %q", got)
+	}
+}
+
+func TestPrintf(t *testing.T) {
+	var buf strings.Builder
+	Printf(&buf, "%s=%d\n", "count", 3)
+	if got := buf.String(); got != "count=3\n" {
+		t.Errorf("Printf wrote %q", got)
+	}
+}
+
+func TestPrintJSON(t *testing.T) {
+	var buf strings.Builder
+	if err := PrintJSON(&buf, map[string]any{"edge": 4.2}); err != nil {
+		t.Fatalf("PrintJSON: %v", err)
+	}
+	if got := buf.String(); got != "{\n  \"edge\": 4.2\n}\n" {
+		t.Errorf("PrintJSON wrote %q", got)
+	}
+}
+
+func TestPrintJSONUnencodableValue(t *testing.T) {
+	var buf strings.Builder
+	if err := PrintJSON(&buf, make(chan int)); err == nil {
+		t.Error("PrintJSON(chan) = nil error, want unsupported type error")
+	}
+}
+
+func TestMarkdown(t *testing.T) {
+	out := Markdown("# Title\n\nSome **bold** text.")
+	for _, want := range []string{"Title", "bold"} {
+		if !strings.Contains(out, want) {
+			t.Errorf("Markdown output missing %q:\n%s", want, out)
+		}
 	}
 }
 
