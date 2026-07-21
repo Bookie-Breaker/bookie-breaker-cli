@@ -23,6 +23,37 @@ func TestRootHelp(t *testing.T) {
 	}
 }
 
+// TestExecuteMapsErrorsToExitCode drives the real Execute entry point
+// with an unknown command, which fails before any config or network work.
+// os.Args and os.Stderr are swapped so the run is hermetic.
+func TestExecuteMapsErrorsToExitCode(t *testing.T) {
+	origArgs, origStderr := os.Args, os.Stderr
+	t.Cleanup(func() {
+		os.Args, os.Stderr = origArgs, origStderr
+	})
+
+	stderrFile, err := os.CreateTemp(t.TempDir(), "stderr")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer func() { _ = stderrFile.Close() }()
+
+	os.Args = []string{"bb", "definitely-not-a-command"}
+	os.Stderr = stderrFile
+
+	if code := Execute(); code != api.ExitUsage {
+		t.Errorf("Execute() = %d, want %d", code, api.ExitUsage)
+	}
+
+	rendered, err := os.ReadFile(stderrFile.Name())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(rendered), "unknown command") {
+		t.Errorf("stderr = %q, want unknown command error", rendered)
+	}
+}
+
 func TestUnknownCommandExitsUsage(t *testing.T) {
 	res := runBB(t, nil, "bogus")
 	if res.code != api.ExitUsage {

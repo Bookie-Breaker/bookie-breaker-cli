@@ -123,3 +123,21 @@ func TestHealthJSON(t *testing.T) {
 		}
 	}
 }
+
+func TestParseHealthStatus(t *testing.T) {
+	cases := []struct {
+		name string
+		body string
+		want string
+	}{
+		{"envelope status", `{"data": {"status": "healthy"}}`, "healthy"},
+		{"top-level status", `{"status": "degraded"}`, "degraded"},
+		{"no status fields", `{}`, ""},
+		{"not JSON", `<html>oops</html>`, ""},
+	}
+	for _, tc := range cases {
+		if got := parseHealthStatus(strings.NewReader(tc.body)); got != tc.want {
+			t.Errorf("%s: parseHealthStatus = %q, want %q", tc.name, got, tc.want)
+		}
+	}
+}

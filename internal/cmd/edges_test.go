@@ -159,3 +159,26 @@ func TestEdgesAPIError(t *testing.T) {
 		t.Errorf("stdout should be empty on error, got %q", res.stdout)
 	}
 }
+
+func TestEdgeGameLabel(t *testing.T) {
+	away, home := "LAL", "BOS"
+	withTeams := agentservice.EdgeListItem{AwayTeam: &away, HomeTeam: &home}
+	if got := edgeGameLabel(withTeams); got != "LAL @ BOS" {
+		t.Errorf("edgeGameLabel(teams) = %q, want LAL @ BOS", got)
+	}
+
+	// Without team abbreviations the label falls back to a shortened id.
+	noTeams := agentservice.EdgeListItem{GameId: "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"}
+	if got := edgeGameLabel(noTeams); got != "aaaaaaaa" {
+		t.Errorf("edgeGameLabel(no teams) = %q, want aaaaaaaa", got)
+	}
+}
+
+func TestShortID(t *testing.T) {
+	if got := shortID("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"); got != "aaaaaaaa" {
+		t.Errorf("shortID(uuid) = %q, want first block", got)
+	}
+	if got := shortID("short"); got != "short" {
+		t.Errorf("shortID(short) = %q, want passthrough", got)
+	}
+}

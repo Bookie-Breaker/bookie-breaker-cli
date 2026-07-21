@@ -147,3 +147,21 @@ func TestPipelineStatusInvalidRunID(t *testing.T) {
 		t.Fatalf("exit code = %d, want %d", res.code, api.ExitUsage)
 	}
 }
+
+func TestStepState(t *testing.T) {
+	cases := []struct {
+		name string
+		in   any
+		want string
+	}{
+		{"plain string", "completed", "completed"},
+		{"object with status", map[string]any{"status": "running"}, "running"},
+		{"object without status", map[string]any{"note": "x"}, "map[note:x]"},
+		{"unexpected type", 42, "42"},
+	}
+	for _, tc := range cases {
+		if got := stepState(tc.in); got != tc.want {
+			t.Errorf("%s: stepState(%v) = %q, want %q", tc.name, tc.in, got, tc.want)
+		}
+	}
+}

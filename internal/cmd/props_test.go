@@ -13,6 +13,7 @@ import (
 	"github.com/Bookie-Breaker/bookie-breaker-cli/internal/api"
 	"github.com/Bookie-Breaker/bookie-breaker-cli/internal/client/agentservice"
 	"github.com/Bookie-Breaker/bookie-breaker-cli/internal/client/linesservice"
+	"github.com/Bookie-Breaker/bookie-breaker-cli/internal/ui"
 )
 
 // propEdgesFixture mixes two player prop edges (one OVER/UNDER, one
@@ -288,5 +289,33 @@ func TestStatLabelFallbackAndSelectionParsing(t *testing.T) {
 			t.Errorf("propSelectionSideLine(%q) = (%q, %q), want (%q, %q)",
 				c.selection, side, line, c.side, c.line)
 		}
+	}
+}
+
+func TestPlayerLabel(t *testing.T) {
+	if got := playerLabel(nil); got != ui.Dash {
+		t.Errorf("playerLabel(nil) = %q, want dash", got)
+	}
+	empty := ""
+	if got := playerLabel(&empty); got != ui.Dash {
+		t.Errorf("playerLabel(empty) = %q, want dash", got)
+	}
+	slug := "erling-haaland"
+	if got := playerLabel(&slug); got != "Erling Haaland" {
+		t.Errorf("playerLabel(slug) = %q, want Erling Haaland", got)
+	}
+}
+
+func TestStatLabelUnmapped(t *testing.T) {
+	key := "expected_goal_involvements"
+	if got := statLabel(&key); got != "Expected Goal Involvements" {
+		t.Errorf("statLabel(unmapped) = %q, want title-cased fallback", got)
+	}
+}
+
+func TestTitleWords(t *testing.T) {
+	// Empty parts (double separators) are preserved, not upper-cased.
+	if got := titleWords("a--b", "-"); got != "A  B" {
+		t.Errorf("titleWords(a--b) = %q, want %q", got, "A  B")
 	}
 }

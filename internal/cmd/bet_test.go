@@ -423,3 +423,25 @@ func TestBetListJSON(t *testing.T) {
 	}
 	mustJSONEqual(t, res.stdout, bets)
 }
+
+func TestParseDateTime(t *testing.T) {
+	got, err := parseDateTime("2026-07-04")
+	if err != nil {
+		t.Fatalf("parseDateTime(date): %v", err)
+	}
+	if want := time.Date(2026, 7, 4, 0, 0, 0, 0, time.UTC); !got.Equal(want) {
+		t.Errorf("parseDateTime(date) = %v, want %v", got, want)
+	}
+
+	got, err = parseDateTime("2026-07-04T18:30:00Z")
+	if err != nil {
+		t.Fatalf("parseDateTime(RFC 3339): %v", err)
+	}
+	if want := time.Date(2026, 7, 4, 18, 30, 0, 0, time.UTC); !got.Equal(want) {
+		t.Errorf("parseDateTime(RFC 3339) = %v, want %v", got, want)
+	}
+
+	if _, err := parseDateTime("last tuesday"); err == nil {
+		t.Error("parseDateTime(garbage) = nil error, want format error")
+	}
+}
